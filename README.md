@@ -1,9 +1,11 @@
-# Intro_to_DL_Project
+# CMU Introduction to Deep Learning Spring 2020 Term Project
+PyTorch implementation. 
 
 # Requirements:
-
 1. PyTorch
+2. OpenAI Gym: https://github.com/openai/gym
+3. OpenAI Multi-Particle Environment: https://github.com/openai/multiagent-particle-envs
 
 # Sources:
-1. OpenAI Multi-Particle Environment: https://github.com/openai/multiagent-particle-envs
-2. Baseline implementation (MADDPG): https://github.com/shariqiqbal2810/maddpg-pytorch
+1. Baseline implementation (MADDPG): https://github.com/shariqiqbal2810/maddpg-pytorch
+2. QMIX: https://arxiv.org/abs/1803.11485
