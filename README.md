@@ -1,5 +1,5 @@
 # CMU Introduction to Deep Learning Spring 2020 Term Project
-PyTorch implementation. 
+Multi-agent Reinforcement Learning
 
 # Requirements:
 1. PyTorch
