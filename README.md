@@ -8,4 +8,5 @@ PyTorch implementation.
 
 # Sources:
 1. Baseline implementation (MADDPG): https://github.com/shariqiqbal2810/maddpg-pytorch
-2. QMIX: https://arxiv.org/abs/1803.11485
+2. MADDPG paper: https://arxiv.org/abs/1706.02275
+3. QMIX paper: https://arxiv.org/abs/1803.11485
