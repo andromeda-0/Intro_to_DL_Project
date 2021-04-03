@@ -8,11 +8,13 @@ from utils.misc import soft_update, hard_update, onehot_from_logits, gumbel_soft
 
 MSELoss = torch.nn.MSELoss()
 
+
 class Policy:
     def __init__(self, args, agent_algo, team_algo, team_types,
                  agent_init_params, mixer_init_params,
                  gamma=0.95, tau=0.01, discrete_action=False):
-        self.agents = [Agent(discrete_action=discrete_action, **param) for param in agent_init_params]
+        self.agents = [Agent(discrete_action=discrete_action, **param) for param in
+                       agent_init_params]
         self.mixers = [Mixer(agents=self.agents, **param) for param in mixer_init_params]
         self.agent_algo = agent_algo
         self.team_algo = team_algo
@@ -47,7 +49,8 @@ class Policy:
         return [a.target_actor for a in self.agents]
 
     def step(self, observations, epsilon, noise_rate):
-        return [a.step(obs, epsilon=epsilon, noise_rate=noise_rate) for a, obs in zip(self.agents, observations)]
+        return [a.step(obs, epsilon=epsilon, noise_rate=noise_rate) for a, obs in
+                zip(self.agents, observations)]
 
     def qmix_update(self, batch, mixer_i):
         curr_team = self.mixers[mixer_i]
@@ -64,9 +67,11 @@ class Policy:
 
         # ----- critic + mixer update -----
         if self.discrete_action:
-            u_next = [onehot_from_logits(pi_target(obs_next)) for pi_target, obs_next in zip(self.target_policies, o_next)]
+            u_next = [onehot_from_logits(pi_target(obs_next)) for pi_target, obs_next in
+                      zip(self.target_policies, o_next)]
         else:
-            u_next = [pi_target(obs_next) for pi_target, obs_next in zip(self.target_policies, o_next)]
+            u_next = [pi_target(obs_next) for pi_target, obs_next in
+                      zip(self.target_policies, o_next)]
         next_state = torch.cat((*o_next, *u_next), dim=1)
         curr_state = torch.cat((*o, *u), dim=1)
 
@@ -105,7 +110,6 @@ class Policy:
         torch.nn.utils.clip_grad_norm_(curr_team.actor_param, 0.1)
         curr_team.actor_optim.step()
 
-
     def maddpg_update(self, batch, agent_i):
         curr_agent = self.agents[agent_i]
         r = batch['r_%d' % agent_i]
@@ -117,7 +121,8 @@ class Policy:
 
         # -----critic update------
         if self.discrete_action:
-            u_next = [onehot_from_logits(pi(obs_next)) for pi, obs_next in zip(self.target_policies, o_next)]
+            u_next = [onehot_from_logits(pi(obs_next)) for pi, obs_next in
+                      zip(self.target_policies, o_next)]
         else:
             u_next = [pi(obs_next) for pi, obs_next in zip(self.target_policies, o_next)]
         next_state = torch.cat((*o_next, *u_next), dim=1)
@@ -170,8 +175,10 @@ class Policy:
             agent_types = ['agent' for agent in env.agents]
 
         team_types = list(dict.fromkeys(agent_types).keys())
-        team_algo = [args.adv_algo if atype == 'adversary' else args.agent_algo for atype in team_types]
-        agent_algo = [args.adv_algo if atype == 'adversary' else args.agent_algo for atype in agent_types]
+        team_algo = [args.adv_algo if atype == 'adversary' else args.agent_algo for atype in
+                     team_types]
+        agent_algo = [args.adv_algo if atype == 'adversary' else args.agent_algo for atype in
+                      agent_types]
 
         agent_init_params = []
         for type, acsp, obsp in zip(agent_types, env.action_space, env.observation_space):
@@ -208,7 +215,8 @@ class Policy:
                                           'n_agents': n_agents,
                                           'mixer_state_dim': state_dim})
 
-        init_dict = {'args': args, 'agent_algo': agent_algo, 'team_algo': team_algo, 'team_types': team_types,
+        init_dict = {'args': args, 'agent_algo': agent_algo, 'team_algo': team_algo,
+                     'team_types': team_types,
                      'agent_init_params': agent_init_params, 'mixer_init_params': mixer_init_params,
                      'discrete_action': discrete_action}
         print(init_dict)
@@ -231,12 +239,14 @@ class Policy:
 
     def load_model(self):
         for i, a in enumerate(self.agents):
-            actor_path = os.path.join(self.model_path, a.type, self.agent_algo[i], 'agent_%d' % i, 'actor_params.pkl')
+            actor_path = os.path.join(self.model_path, a.type, self.agent_algo[i], 'agent_%d' % i,
+                                      'actor_params.pkl')
             if os.path.exists(actor_path):
                 a.actor.load_state_dict(torch.load(actor_path))
                 a.target_actor.load_state_dict(torch.load(actor_path))
                 print('{} {} successfully loaded actor network: {}'.format(a.type, i, actor_path))
-            critic_path = os.path.join(self.model_path, a.type, self.agent_algo[i], 'agent_%d' % i, 'critic_params.pkl')
+            critic_path = os.path.join(self.model_path, a.type, self.agent_algo[i], 'agent_%d' % i,
+                                       'critic_params.pkl')
             if os.path.exists(critic_path):
                 a.critic.load_state_dict(torch.load(critic_path))
                 a.target_critic.load_state_dict(torch.load(critic_path))

@@ -26,7 +26,6 @@ class Runner:
         self.teams = self.policy.teams
         self.save_path = os.path.join(self.args.model_dir, self.args.scenario_name)
 
-
     def run(self):
         returns = [[] for _ in range(self.n_agents)]
         norm_scores = [[] for _ in range(self.n_agents)]
@@ -36,7 +35,8 @@ class Runner:
             for time_step in range(self.args.episode_length):
                 r = []
                 with torch.no_grad():
-                    torch_obs = [torch.tensor(s[i], dtype=torch.float32).view(1, -1) for i in range(self.n_agents)]
+                    torch_obs = [torch.tensor(s[i], dtype=torch.float32).view(1, -1) for i in
+                                 range(self.n_agents)]
                     u = self.policy.step(torch_obs, epsilon=self.epsilon, noise_rate=self.noise)
                 actions = [action.numpy().flatten() for action in u]
                 s_next, rewards, done, _ = self.env.step(actions)
@@ -63,8 +63,10 @@ class Runner:
                 for i, a in enumerate(self.agents):
                     agent_num = a.type + str(i)
                     returns[i].append(ave_return[i])
-                    data_path = os.path.join(self.save_path, '%s' % a.type, self.policy.agent_algo[i], 'data')
-                    plot_path = os.path.join(self.save_path, '%s' % a.type, self.policy.agent_algo[i], 'plots')
+                    data_path = os.path.join(self.save_path, '%s' % a.type,
+                                             self.policy.agent_algo[i], 'data')
+                    plot_path = os.path.join(self.save_path, '%s' % a.type,
+                                             self.policy.agent_algo[i], 'plots')
                     if not os.path.exists(data_path):
                         os.makedirs(data_path)
                     if not os.path.exists(plot_path):
@@ -82,7 +84,6 @@ class Runner:
         self.policy.save_model()
         ave_return, norm_return = self.evaluate(render=False)
 
-
     def evaluate(self, render=False):
         returns = [[] for _ in range(self.n_agents)]
         norm_return = [[] for _ in range(self.n_agents)]
@@ -94,7 +95,8 @@ class Runner:
                 if render:
                     self.env.render()
                 with torch.no_grad():
-                    torch_obs = [torch.tensor(s[i], dtype=torch.float32).view(1, -1) for i in range(self.n_agents)]
+                    torch_obs = [torch.tensor(s[i], dtype=torch.float32).view(1, -1) for i in
+                                 range(self.n_agents)]
                     u = self.policy.step(torch_obs, epsilon=0, noise_rate=0)
                 actions = [action.numpy().flatten() for action in u]
                 s_next, r, done, info = self.env.step(actions)
@@ -106,12 +108,13 @@ class Runner:
 
         for i in range(self.args.evaluate_episodes):
             for j in range(self.n_agents):
-                norm_return[j].append((returns[j][i] - min(returns[j])) / (max(returns[j]) - min(returns[j])))
+                norm_return[j].append(
+                        (returns[j][i] - min(returns[j])) / (max(returns[j]) - min(returns[j])))
 
         ave_return = [np.mean(i) for i in returns]
         norm_score = [np.mean(i) for i in norm_return]
         for i, a in enumerate(self.agents):
-            print('{} {}: max = {:.3f}, min = {:.3f}, mean = {:.3f}, mean norm = {:.3f}'.\
-                            format(a.type, i, max(returns[i]), min(returns[i]), ave_return[i], norm_score[i]))
+            print('{} {}: max = {:.3f}, min = {:.3f}, mean = {:.3f}, mean norm = {:.3f}'.
+                  format(a.type, i, max(returns[i]), min(returns[i]), ave_return[i], norm_score[i]))
 
         return ave_return, norm_score

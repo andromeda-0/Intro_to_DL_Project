@@ -1,7 +1,6 @@
 from utils.misc import make_env, get_args, set_seed
 from runner import Runner
 
-
 if __name__ == '__main__':
     set_seed(78)
     args = get_args()
