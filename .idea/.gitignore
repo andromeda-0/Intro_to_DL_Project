@@ -2,7 +2,7 @@
 /shelf/
 /workspace.xml
 # Datasource local storage ignored files
-/../../../../../../../../../../../:\Users\Zongyue\OneDrive\Documents\CMU\21Spring\11785\Project\zongyuez\.idea/dataSources/
+/dataSources/
 /dataSources.local.xml
 # Editor-based HTTP Client requests
 /httpRequests/

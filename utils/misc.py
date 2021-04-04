@@ -11,10 +11,11 @@ from torch.autograd import Variable
 def get_args():
     parser = argparse.ArgumentParser("Multiagent RL with OpenAI's MPE")
 
-    parser.add_argument("--scenario_name", type=str, default="simple_push", help="name of the scenario",
+    parser.add_argument("--scenario_name", type=str, default="simple_push",
+                        help="name of the scenario",
                         choices=['simple_adversary', 'simple_crypto', 'simple_push',
-                        'simple_reference', 'simple_speaker_listener', 'simple_spread',
-                        'simple_tag', 'simple_world_comm', 'simple'])
+                                 'simple_reference', 'simple_speaker_listener', 'simple_spread',
+                                 'simple_tag', 'simple_world_comm', 'simple'])
     parser.add_argument("--adv_algo", type=str, default='qmix', help="adversary algorithm",
                         choices=['qmix', 'maddpg'])
     parser.add_argument("--agent_algo", type=str, default='maddpg', help="agent algorithm",
@@ -22,18 +23,28 @@ def get_args():
     parser.add_argument("--n_episodes", type=int, default=25000, help="number of training episodes")
     parser.add_argument("--episode_length", type=int, default=25, help="length of each episode")
     parser.add_argument("--noise_rate", type=float, default=0.5, help="noise for action")
-    parser.add_argument("--min_noise_rate", type=float, default=0.05, help="minimum noise for action")
+    parser.add_argument("--min_noise_rate", type=float, default=0.05,
+                        help="minimum noise for action")
     parser.add_argument("--epsilon", type=float, default=0.5, help="epsilon for epsilon greddy")
-    parser.add_argument("--min_epsilon", type=float, default=0.05, help="minimum epsilon for epsilon greddy")
-    parser.add_argument("--anneal_episodes", type=int, default=10000, help="number of episodes to anneal")
-    parser.add_argument("--buffer_size", type=int, default=int(1e6), help="number of transitions stored in buffer")
-    parser.add_argument("--batch_size", type=int, default=1024, help="number of transitions to optimize")
-    parser.add_argument("--evaluate_rate", type=int, default=1000, help="how often to evaluate model")
-    parser.add_argument("--save_rate", type=int, default=5000, help="how many episodes to save model")
-    parser.add_argument("--evaluate_episodes", type=int, default=10000, help="number of episodes to evaluate")
+    parser.add_argument("--min_epsilon", type=float, default=0.05,
+                        help="minimum epsilon for epsilon greddy")
+    parser.add_argument("--anneal_episodes", type=int, default=10000,
+                        help="number of episodes to anneal")
+    parser.add_argument("--buffer_size", type=int, default=int(1e6),
+                        help="number of transitions stored in buffer")
+    parser.add_argument("--batch_size", type=int, default=1024,
+                        help="number of transitions to optimize")
+    parser.add_argument("--evaluate_rate", type=int, default=1000,
+                        help="how often to evaluate model")
+    parser.add_argument("--save_rate", type=int, default=5000,
+                        help="how many episodes to save model")
+    parser.add_argument("--evaluate_episodes", type=int, default=10000,
+                        help="number of episodes to evaluate")
     parser.add_argument("--model_dir", type=str, default="./model", help="directory to load model")
-    parser.add_argument("--evaluate", type=bool, default=False, help="whether to evaluate the model")
-    parser.add_argument("--load_model", type=bool, default=False, help="whether to load pretrained model")
+    parser.add_argument("--evaluate", type=bool, default=False,
+                        help="whether to evaluate the model")
+    parser.add_argument("--load_model", type=bool, default=False,
+                        help="whether to load pretrained model")
     parser.add_argument("--seed", type=int, default=int(10), help="random seed for experiment")
 
     args = parser.parse_args()
@@ -81,7 +92,7 @@ def onehot_from_logits(logits, eps=0.0):
         return argmax_acs
 
     rand_acs = Variable(torch.eye(logits.shape[1])[[np.random.choice(
-                range(logits.shape[1]), size=logits.shape[0])]], requires_grad=False)
+            range(logits.shape[1]), size=logits.shape[0])]], requires_grad=False)
     return torch.stack([argmax_acs[i] if r > eps else rand_acs[i] for i, r in
                         enumerate(torch.rand(logits.shape[0]))])
 
