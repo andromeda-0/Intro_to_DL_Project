@@ -141,7 +141,8 @@ class Policy:
         # -----policy update-----
         if self.discrete_action:
             curr_act = curr_agent.actor(o[agent_i])
-            agent_action = gumbel_softmax(u, hard=True)
+            # agent_action = gumbel_softmax(u, hard=True)
+            agent_action = gumbel_softmax(curr_act, hard=True)
         else:
             curr_act = curr_agent.actor(o[agent_i])
             agent_action = curr_act

@@ -7,6 +7,6 @@ if __name__ == '__main__':
     env = make_env(args)
     runner = Runner(args, env)
     if args.evaluate:
-        ave_return, norm_return = runner.evaluate(render=False)
+        ave_return, norm_return = runner.evaluate(render=True)
     else:
         runner.run()
