@@ -4,14 +4,14 @@ import argparse
 import numpy as np
 import torch
 import torch.nn.functional as F
-import torch.distributed as dist
+# import torch.distributed as dist
 from torch.autograd import Variable
 
 
 def get_args():
     parser = argparse.ArgumentParser("Multiagent RL with OpenAI's MPE")
 
-    parser.add_argument("--scenario_name", type=str, default="simple_push",
+    parser.add_argument("--scenario_name", type=str, default="simple_tag",
                         help="name of the scenario",
                         choices=['simple_adversary', 'simple_crypto', 'simple_push',
                                  'simple_reference', 'simple_speaker_listener', 'simple_spread',
@@ -41,9 +41,9 @@ def get_args():
     parser.add_argument("--evaluate_episodes", type=int, default=10000,
                         help="number of episodes to evaluate")
     parser.add_argument("--model_dir", type=str, default="./model", help="directory to load model")
-    parser.add_argument("--evaluate", type=bool, default=False,
+    parser.add_argument("--evaluate", action='store_true',
                         help="whether to evaluate the model")
-    parser.add_argument("--load_model", type=bool, default=False,
+    parser.add_argument("--load_model", action='store_true',
                         help="whether to load pretrained model")
     parser.add_argument("--seed", type=int, default=int(10), help="random seed for experiment")
 
