@@ -38,16 +38,20 @@ class Policy:
         if self.args.load_model:
             self.load_model()
 
+
     @property
     def policies(self):
         return [a.actor for a in self.agents]
+
 
     @property
     def target_policies(self):
         return [a.target_actor for a in self.agents]
 
+
     def step(self, observations, epsilon, noise_rate):
         return [a.step(obs, epsilon=epsilon, noise_rate=noise_rate) for a, obs in zip(self.agents, observations)]
+
 
     def qmix_update(self, batch, mixer_i):
         curr_team = self.mixers[mixer_i]
@@ -136,7 +140,7 @@ class Policy:
         # -----policy update-----
         if self.discrete_action:
             curr_act = curr_agent.actor(o[agent_i])
-            agent_action = gumbel_softmax(u, hard=True)
+            agent_action = gumbel_softmax(curr_act, hard=True)
         else:
             curr_act = curr_agent.actor(o[agent_i])
             agent_action = curr_act
@@ -155,12 +159,14 @@ class Policy:
         torch.nn.utils.clip_grad_norm_(curr_agent.actor.parameters(), 0.5)
         curr_agent.actor_optimizer.step()
 
+
     def soft_update_all_target_networks(self):
         for a in self.agents:
             soft_update(a.target_critic, a.critic, self.tau)
             soft_update(a.target_actor, a.actor, self.tau)
         for m in self.mixers:
             soft_update(m.target_mixer, m.mixer, self.tau)
+
 
     @classmethod
     def init_from_env(cls, args, env):
