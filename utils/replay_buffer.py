@@ -14,8 +14,10 @@ class ReplayBuffer:
         self.n_agents = len(self.env.agents)
         self.observation_shape = [obsp.shape[0] for obsp in env.observation_space]
         self.action_shape = [acsp.shape[0] if isinstance(acsp, Box) else acsp.n for acsp in env.action_space]
+        self.k_neighbor = [self.args.k_neighobor for _ in range(self.n_agents)]
         for i in range(self.n_agents):
             self.buffer['o_%d' % i] = np.empty([self.size, self.observation_shape[i]])
+            self.buffer['idx_%d' % i] np.empty([self.size, self.k_neighbor[i]])
             self.buffer['u_%d' % i] = np.empty([self.size, self.action_shape[i]])
             self.buffer['r_%d' % i] = np.empty([self.size, 1])
             self.buffer['o_next_%d' % i] = np.empty([self.size, self.observation_shape[i]])

@@ -2,6 +2,7 @@ import os
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 from utils.replay_buffer import ReplayBuffer
 from algorithm.policy import Policy
 
@@ -31,7 +32,7 @@ class Runner:
         returns = [[] for _ in range(self.n_agents)]
         norm_scores = [[] for _ in range(self.n_agents)]
 
-        for episode in range(self.args.n_episodes):
+        for episode in tqdm(range(self.args.n_episodes)):
             s = self.env.reset()
             for time_step in range(self.args.episode_length):
                 r = []
@@ -78,7 +79,6 @@ class Runner:
                     plt.title('%s training (%s)' % (agent_num, self.args.scenario_name))
                     plt.savefig(plot_path + '/%s_returns.png' % agent_num)
 
-        print('Complete Training')
         self.policy.save_model()
         ave_return, norm_return = self.evaluate(render=False)
 

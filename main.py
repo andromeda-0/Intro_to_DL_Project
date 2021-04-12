@@ -3,7 +3,7 @@ from runner import Runner
 
 
 if __name__ == '__main__':
-    set_seed(78)
+    set_seed(12637189)
     args = get_args()
     env = make_env(args)
     runner = Runner(args, env)
