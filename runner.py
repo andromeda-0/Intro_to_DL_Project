@@ -38,10 +38,13 @@ class Runner:
                     torch_obs = [torch.tensor(s[i], dtype=torch.float32).view(1, -1) for i in
                                  range(self.n_agents)]
                     u = self.policy.step(torch_obs, epsilon=self.epsilon, noise_rate=self.noise)
+                    #### INTRINSIC MOTIVATION HERE
+                    influence = self.policy.influence(torch_obs)
+
                 actions = [action.numpy().flatten() for action in u]
                 s_next, rewards, done, _ = self.env.step(actions)
                 for i in range(self.n_agents):
-                    r.append([rewards[i]])
+                    r.append([rewards[i] + influence[i]])
                 self.buffer.store_transition(s, s_next, u, r)
                 s = s_next
                 if self.buffer.current_size >= self.args.batch_size:

@@ -12,7 +12,8 @@ class Agent:
                  type, lr=0.0003, hidden_dim=64, discrete_action=True):
 
         self.actor = MLP(input_dim=actor_in_dim, output_dim=actor_out_dim,
-                         constrain_out=True, discrete_action=discrete_action)
+                         constrain_out=True, discrete_action=discrete_action,
+                         additional_dim=2)
         self.critic = MLP(input_dim=critic_in_dim, output_dim=1,
                           constrain_out=False)
         self.target_actor = deepcopy(self.actor)
@@ -26,7 +27,7 @@ class Agent:
         self.discrete_action = discrete_action
 
     def step(self, obs, epsilon, noise_rate):
-        action = self.actor(obs)
+        action = self.actor(obs, torch.zeros((1, 2)))
         if self.discrete_action:
             if np.random.uniform() < epsilon:  # explore
                 action = gumbel_softmax(action, hard=True)
@@ -40,3 +41,7 @@ class Agent:
                 action += noise
             action = action.clamp(-1, 1)
         return action
+
+    def influence(self, obs, action):
+        with torch.no_grad():
+            return self.actor(obs, action).squeeze(0)

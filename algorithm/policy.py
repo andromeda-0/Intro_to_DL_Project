@@ -12,7 +12,7 @@ MSELoss = torch.nn.MSELoss()
 class Policy:
     def __init__(self, args, agent_algo, team_algo, team_types,
                  agent_init_params, mixer_init_params,
-                 gamma=0.95, tau=0.01, discrete_action=False):
+                 gamma=0.95, tau=0.01, discrete_action=False, influence_mask=None):
         self.agents = [Agent(discrete_action=discrete_action, **param) for param in
                        agent_init_params]
         self.mixers = [Mixer(agents=self.agents, **param) for param in mixer_init_params]
@@ -25,6 +25,8 @@ class Policy:
         self.gamma = gamma
         self.tau = tau
         self.discrete_action = discrete_action
+        self.prev_actions = torch.zeros((self.n_agents, 2))
+        self.influence_mask = influence_mask
 
         self.model_path = os.path.join(self.args.model_dir, self.args.scenario_name)
         if not os.path.exists(self.model_path):
@@ -51,6 +53,17 @@ class Policy:
     def step(self, observations, epsilon, noise_rate):
         return [a.step(obs, epsilon=epsilon, noise_rate=noise_rate) for a, obs in
                 zip(self.agents, observations)]
+
+    def influence(self, observations):
+        rewards = torch.zeros(self.n_agents)
+        for i in range(self.n_agents):
+            for j in range(self.n_agents):
+                if i == j:
+                    continue
+                i_to_j = self.agents[j].influence(observations[j],
+                                                  self.prev_actions[i].unsqueeze(0))
+                rewards[i] += torch.dist(i_to_j, self.prev_actions[j])
+        return torch.softmax(rewards, 0) * self.influence_mask
 
     def qmix_update(self, batch, mixer_i):
         curr_team = self.mixers[mixer_i]
@@ -181,6 +194,12 @@ class Policy:
         agent_algo = [args.adv_algo if atype == 'adversary' else args.agent_algo for atype in
                       agent_types]
 
+        influence_mask = [
+            (atype == 'adversary' and args.social_adv or atype != 'adversary' and args.social_agent)
+            for atype in agent_types]
+
+        influence_mask = torch.as_tensor(influence_mask, dtype=torch.float)
+
         agent_init_params = []
         for type, acsp, obsp in zip(agent_types, env.action_space, env.observation_space):
             actor_in_dim = obsp.shape[0]
@@ -219,7 +238,8 @@ class Policy:
         init_dict = {'args': args, 'agent_algo': agent_algo, 'team_algo': team_algo,
                      'team_types': team_types,
                      'agent_init_params': agent_init_params, 'mixer_init_params': mixer_init_params,
-                     'discrete_action': discrete_action}
+                     'discrete_action': discrete_action,
+                     'influence_mask': influence_mask}
         print(init_dict)
         instance = cls(**init_dict)
         instance.init_dict = init_dict

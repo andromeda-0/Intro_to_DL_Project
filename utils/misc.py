@@ -9,7 +9,7 @@ from torch.autograd import Variable
 
 
 def get_args():
-    parser = argparse.ArgumentParser("Multiagent RL with OpenAI's MPE")
+    parser = argparse.ArgumentParser("MARL")
 
     parser.add_argument("--scenario_name", type=str, default="simple_tag",
                         help="name of the scenario",
@@ -46,7 +46,8 @@ def get_args():
     parser.add_argument("--load_model", action='store_true',
                         help="whether to load pretrained model")
     parser.add_argument("--seed", type=int, default=int(10), help="random seed for experiment")
-
+    parser.add_argument('--social_adv', action='store_true')
+    parser.add_argument('--social_agent', action='store_true')
     args = parser.parse_args()
 
     return args

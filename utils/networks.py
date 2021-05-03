@@ -5,11 +5,12 @@ import torch.nn.functional as F
 
 class MLP(nn.Module):
     def __init__(self, input_dim, output_dim, hidden_dim=64,
-                 constrain_out=False, discrete_action=True):
+                 constrain_out=False, discrete_action=True, additional_dim=0):
         super(MLP, self).__init__()
-        self.fc1 = nn.Linear(input_dim, hidden_dim)
+        self.fc1 = nn.Linear(input_dim + additional_dim, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, hidden_dim)
         self.fc3 = nn.Linear(hidden_dim, output_dim)
+        self.additional_dim = additional_dim
 
         if constrain_out and not discrete_action:
             self.fc3.weight.data.uniform_(-3e-3, 3e-3)
@@ -17,7 +18,12 @@ class MLP(nn.Module):
         else:
             self.out_fn = lambda x: x
 
-    def forward(self, x):
+    def forward(self, x, action=None):
+        if action is not None:
+            x = torch.cat([x, action], dim=1)
+        else:
+            x = torch.cat([x, torch.zeros(x.shape[0], self.additional_dim)], dim=1)
+
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         out = self.out_fn(self.fc3(x))
