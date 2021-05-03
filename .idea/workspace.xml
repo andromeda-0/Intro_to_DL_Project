@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8ee5c3ac-3f16-4f51-ab19-72cf33841a7e" name="Default Changelist" comment="Handles">
-      <change beforePath="$PROJECT_DIR$/.idea/Intro_to_DL_Project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Intro_to_DL_Project.iml" afterDir="false" />
+    <list default="true" id="8ee5c3ac-3f16-4f51-ab19-72cf33841a7e" name="Default Changelist" comment="SOCIAL INFLUENCE">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithm/policy.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithm/policy.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/runner.py" beforeDir="false" afterPath="$PROJECT_DIR$/runner.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/misc.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/misc.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/networks.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/networks.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +61,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
-      <option name="PARAMETERS" value="" />
+      <option name="PARAMETERS" value="--social_adv --social_agent" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -92,7 +88,7 @@
       <workItem from="1617592975628" duration="567000" />
       <workItem from="1617593556640" duration="3710000" />
       <workItem from="1617678977930" duration="3230000" />
-      <workItem from="1620009837305" duration="6584000" />
+      <workItem from="1620009837305" duration="7198000" />
     </task>
     <task id="LOCAL-00001" summary="Curr_act">
       <created>1617576555315</created>
@@ -122,7 +118,14 @@
       <option name="project" value="LOCAL" />
       <updated>1617597217201</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="SOCIAL INFLUENCE">
+      <created>1620016628733</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1620016628733</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -158,9 +161,10 @@
     <MESSAGE value="Default Branch" />
     <MESSAGE value="Discrete_action handle" />
     <MESSAGE value="Handles" />
-    <option name="LAST_COMMIT_MESSAGE" value="Handles" />
+    <MESSAGE value="SOCIAL INFLUENCE" />
+    <option name="LAST_COMMIT_MESSAGE" value="SOCIAL INFLUENCE" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Intro_to_DL_project$main.coverage" NAME="main Coverage Results" MODIFIED="1620016414988" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Intro_to_DL_project$main.coverage" NAME="main Coverage Results" MODIFIED="1620016587391" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
