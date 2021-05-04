@@ -40,8 +40,8 @@ class Runner:
                     torch_obs = [torch.tensor(s[i], dtype=torch.float32, device=device).view(1, -1) for i in
                                  range(self.n_agents)]
                     u = self.policy.step(torch_obs, epsilon=self.epsilon, noise_rate=self.noise)
-                u = [ui.cpu() for ui in u]
-                actions = [action.numpy().flatten() for action in u]
+                # actions = [action.numpy().flatten() for action in u]
+                u = actions = torch.cat(u, dim=0).cpu().numpy()
                 s_next, rewards, done, _ = self.env.step(actions)
                 for i in range(self.n_agents):
                     r.append([rewards[i]])
@@ -91,17 +91,18 @@ class Runner:
         returns = [[] for _ in range(self.n_agents)]
         norm_return = [[] for _ in range(self.n_agents)]
 
-        for episode in range(self.args.evaluate_episodes):
+        for episode in trange(self.args.evaluate_episodes):
             s = self.env.reset()
             r_e = [0 for _ in range(self.n_agents)]
             for time_step in range(self.args.episode_length):
                 if render:
                     self.env.render()
                 with torch.no_grad():
-                    torch_obs = [torch.tensor(s[i], dtype=torch.float32).view(1, -1) for i in
+                    torch_obs = [torch.tensor(s[i], dtype=torch.float32, device=device).view(1, -1) for i in
                                  range(self.n_agents)]
                     u = self.policy.step(torch_obs, epsilon=0, noise_rate=0)
-                actions = [action.numpy().flatten() for action in u]
+                actions = torch.cat(u, dim=0).cpu().numpy()
+                # actions = [action.cpu().numpy().flatten() for action in u]
                 s_next, r, done, info = self.env.step(actions)
                 s = s_next
                 for i in range(self.n_agents):
