@@ -38,10 +38,13 @@ class Runner:
                     torch_obs = [torch.tensor(s[i], dtype=torch.float32).view(1, -1) for i in
                                  range(self.n_agents)]
                     u = self.policy.step(torch_obs, epsilon=self.epsilon, noise_rate=self.noise)
-                    #### INTRINSIC MOTIVATION HERE
-                    influence = self.policy.influence(torch_obs)
 
                 actions = [action.numpy().flatten() for action in u]
+                for i, action in enumerate(actions):
+                    self.policy.prev_actions[i] = torch.as_tensor(action)
+
+                influence = self.policy.influence(torch_obs)
+
                 s_next, rewards, done, _ = self.env.step(actions)
                 for i in range(self.n_agents):
                     r.append([rewards[i] + influence[i]])
