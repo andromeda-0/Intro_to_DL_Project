@@ -2,6 +2,7 @@ import threading
 import numpy as np
 import torch
 from gym.spaces import Box, Discrete
+from constants import device
 
 
 class ReplayBuffer:
@@ -37,7 +38,7 @@ class ReplayBuffer:
         for key in self.buffer.keys():
             temp_buffer[key] = self.buffer[key][idx]
         for key in temp_buffer.keys():
-            temp_buffer[key] = torch.tensor(temp_buffer[key], dtype=torch.float32)
+            temp_buffer[key] = torch.tensor(temp_buffer[key], dtype=torch.float32, device=device)
         return temp_buffer
 
     def _get_storage_idx(self, inc=None):

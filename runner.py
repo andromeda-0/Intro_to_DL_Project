@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from utils.replay_buffer import ReplayBuffer
 from algorithm.policy import Policy
+from constants import device
+from tqdm import trange
 
 
 class Runner:
@@ -30,14 +32,15 @@ class Runner:
         returns = [[] for _ in range(self.n_agents)]
         norm_scores = [[] for _ in range(self.n_agents)]
 
-        for episode in range(self.args.n_episodes):
+        for episode in trange(self.args.n_episodes):
             s = self.env.reset()
             for time_step in range(self.args.episode_length):
                 r = []
                 with torch.no_grad():
-                    torch_obs = [torch.tensor(s[i], dtype=torch.float32).view(1, -1) for i in
+                    torch_obs = [torch.tensor(s[i], dtype=torch.float32, device=device).view(1, -1) for i in
                                  range(self.n_agents)]
                     u = self.policy.step(torch_obs, epsilon=self.epsilon, noise_rate=self.noise)
+                u = [ui.cpu() for ui in u]
                 actions = [action.numpy().flatten() for action in u]
                 s_next, rewards, done, _ = self.env.step(actions)
                 for i in range(self.n_agents):

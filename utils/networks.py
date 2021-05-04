@@ -18,8 +18,8 @@ class MLP(nn.Module):
             self.out_fn = lambda x: x
 
     def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc1(x), inplace=True)
+        x = F.relu(self.fc2(x), inplace=True)
         out = self.out_fn(self.fc3(x))
         return out
 
@@ -33,21 +33,21 @@ class QMixer(nn.Module):
         self.n_agents = n_agents
 
         self.hyper_w1 = nn.Sequential(nn.Linear(self.state_dim, hypernet_embed),
-                                      nn.ReLU(),
+                                      nn.ReLU(inplace=True),
                                       nn.Linear(hypernet_embed, hypernet_embed),
-                                      nn.ReLU(),
+                                      nn.ReLU(inplace=True),
                                       nn.Linear(hypernet_embed, self.embed_dim * self.n_agents))
         self.hyper_w2 = nn.Sequential(nn.Linear(self.state_dim, hypernet_embed),
-                                      nn.ReLU(),
+                                      nn.ReLU(inplace=True),
                                       nn.Linear(hypernet_embed, hypernet_embed),
-                                      nn.ReLU(),
+                                      nn.ReLU(inplace=True),
                                       nn.Linear(hypernet_embed, self.embed_dim))
 
         self.hyper_b1 = nn.Sequential(nn.Linear(self.state_dim, hypernet_embed),
-                                      nn.ReLU(),
+                                      nn.ReLU(inplace=True),
                                       nn.Linear(hypernet_embed, self.embed_dim))
         self.hyper_b2 = nn.Sequential(nn.Linear(self.state_dim, hypernet_embed),
-                                      nn.ReLU(),
+                                      nn.ReLU(inplace=True),
                                       nn.Linear(hypernet_embed, output_dim))
 
     def forward(self, agent_qs, states):
@@ -56,7 +56,7 @@ class QMixer(nn.Module):
         w1 = self.hyper_w1(states).view(-1, self.n_agents, self.embed_dim)
         b1 = self.hyper_b1(states).view(-1, 1, self.embed_dim)
 
-        hidden_1 = F.relu(torch.bmm(agent_qs, w1) + b1)
+        hidden_1 = F.relu(torch.bmm(agent_qs, w1) + b1, inplace=True)
 
         w2 = self.hyper_w2(states).view(-1, self.embed_dim, 1)
         b2 = self.hyper_b2(states).view(-1, 1, 1)

@@ -5,6 +5,7 @@ from torch.autograd import Variable
 from copy import deepcopy
 from utils.networks import MLP
 from utils.misc import gumbel_softmax, onehot_from_logits
+from constants import device
 
 
 class Agent:
@@ -12,9 +13,9 @@ class Agent:
                  type, lr=0.0003, hidden_dim=64, discrete_action=True):
 
         self.actor = MLP(input_dim=actor_in_dim, output_dim=actor_out_dim,
-                         constrain_out=True, discrete_action=discrete_action)
+                         constrain_out=True, discrete_action=discrete_action).to(device=device)
         self.critic = MLP(input_dim=critic_in_dim, output_dim=1,
-                          constrain_out=False)
+                          constrain_out=False).to(device=device)
         self.target_actor = deepcopy(self.actor)
         self.target_critic = deepcopy(self.critic)
 

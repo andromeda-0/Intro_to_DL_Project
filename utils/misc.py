@@ -6,6 +6,7 @@ import torch
 import torch.nn.functional as F
 # import torch.distributed as dist
 from torch.autograd import Variable
+from constants import device
 
 
 def get_args():
@@ -46,6 +47,7 @@ def get_args():
     parser.add_argument("--load_model", action='store_true',
                         help="whether to load pretrained model")
     parser.add_argument("--seed", type=int, default=int(10), help="random seed for experiment")
+    # parser.add_argument('--device', type=str, default='cuda:0', choices=['cuda:0', 'cpu'])
 
     args = parser.parse_args()
 
@@ -81,9 +83,11 @@ def make_env(args, discrete_action=False, benchmark=False):
     return env
 
 
+@torch.no_grad()
 def soft_update(target, source, tau):
     for target_param, param in zip(target.parameters(), source.parameters()):
-        target_param.data.copy_(target_param.data * (1.0 - tau) + param.data * tau)
+        # target_param.data.copy_(target_param.data * (1.0 - tau) + param.data * tau)
+        target_param.mul_(1. - tau).add_(param * tau)
 
 
 def hard_update(target, source):
@@ -108,7 +112,7 @@ def sample_gumbel(shape, eps=1e-20, tens_type=torch.FloatTensor):
 
 
 def gumbel_softmax_sample(logits, temperature):
-    y = logits + sample_gumbel(logits.shape, tens_type=type(logits.data))
+    y = logits + sample_gumbel(logits.shape, tens_type=type(logits.data)).to(device=device)
     return F.softmax(y / temperature, dim=1)
 
 
