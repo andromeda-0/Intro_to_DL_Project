@@ -18,7 +18,7 @@ def get_args():
                                  'simple_tag', 'simple_world_comm', 'simple'])
     parser.add_argument("--adv_algo", type=str, default='qmix', help="adversary algorithm",
                         choices=['qmix', 'maddpg'])
-    parser.add_argument("--agent_algo", type=str, default='qmix', help="agent algorithm",
+    parser.add_argument("--agent_algo", type=str, default='maddpg', help="agent algorithm",
                         choices=['qmix', 'maddpg'])
     parser.add_argument("--n_episodes", type=int, default=25000, help="number of training episodes")
     parser.add_argument("--episode_length", type=int, default=25, help="length of each episode")
