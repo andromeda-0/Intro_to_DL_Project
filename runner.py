@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from utils.replay_buffer import ReplayBuffer
 from algorithm.policy import Policy
 
-BETA = 5e-2
+BETA = -5e-2
 
 
 class Runner:
