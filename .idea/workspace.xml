@@ -94,7 +94,7 @@
       <workItem from="1617592975628" duration="567000" />
       <workItem from="1617593556640" duration="3710000" />
       <workItem from="1617678977930" duration="3230000" />
-      <workItem from="1620009837305" duration="41230000" />
+      <workItem from="1620009837305" duration="43103000" />
     </task>
     <task id="LOCAL-00001" summary="Curr_act">
       <created>1617576555315</created>
@@ -173,7 +173,14 @@
       <option name="project" value="LOCAL" />
       <updated>1620235570302</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Punish Social Influence">
+      <created>1620271200054</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1620271200054</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
