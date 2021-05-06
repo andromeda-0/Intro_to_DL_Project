@@ -51,16 +51,18 @@ class Runner:
                     update_policy = episode % self.args.policy_update_freq == 0
 
                     for i, a in enumerate(self.agents):
+                        batch = self.buffer.sample(self.args.batch_size)
                         if self.policy.agent_algo[i] == 'maddpg':
-                            batch = self.buffer.sample(self.args.batch_size)
                             self.policy.maddpg_update(batch, i)
                         elif self.policy.agent_algo[i] == 'matd3':
-                            batch = self.buffer.sample(self.args.batch_size)
                             self.policy.madtd3_update(batch, i, update_policy)
 
                     for i, m in enumerate(self.mixers):
                         batch = self.buffer.sample(self.args.batch_size)
-                        self.policy.qmix_update(batch, i)
+                        if self.policy.team_algo[i] == 'qmix':
+                            self.policy.qmix_update(batch, i)
+                        elif self.policy.team_algo[i] == 'qmix_td3':
+                            self.policy.double_qmix_update(batch, i)
 
                     self.policy.soft_update_non_td3_target_networks()
             self.noise = max(self.min_noise, self.noise - self.anneal_noise)
@@ -94,6 +96,7 @@ class Runner:
         self.policy.save_model()
         ave_return, norm_return = self.evaluate(render=False)
 
+    @torch.no_grad()
     def evaluate(self, render=False):
         returns = [[] for _ in range(self.n_agents)]
         norm_return = [[] for _ in range(self.n_agents)]
@@ -104,10 +107,9 @@ class Runner:
             for time_step in range(self.args.episode_length):
                 if render:
                     self.env.render()
-                with torch.no_grad():
-                    torch_obs = [torch.tensor(s[i], dtype=torch.float32, device=device).view(1, -1) for i in
-                                 range(self.n_agents)]
-                    u = self.policy.step(torch_obs, epsilon=0, noise_rate=0)
+                torch_obs = [torch.tensor(s[i], dtype=torch.float32, device=device).view(1, -1) for i in
+                             range(self.n_agents)]
+                u = self.policy.step(torch_obs, epsilon=0, noise_rate=0)
                 actions = torch.cat(u, dim=0).cpu().numpy()
                 # actions = [action.cpu().numpy().flatten() for action in u]
                 s_next, r, done, info = self.env.step(actions)

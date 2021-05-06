@@ -79,3 +79,17 @@ class QMixer(nn.Module):
         q_tot = y.view(-1, 1)
 
         return q_tot
+
+
+class DoubleQMixer(nn.Module):
+
+    def __init__(self, state_dim, n_agents, output_dim=1,
+                 embed_dim=32, hypernet_embed=64):
+        super(DoubleQMixer, self).__init__()
+        self.qmixer1 = QMixer(state_dim, n_agents, output_dim=1,
+                              embed_dim=32, hypernet_embed=64)
+        self.qmixer2 = QMixer(state_dim, n_agents, output_dim=1,
+                              embed_dim=32, hypernet_embed=64)
+
+    def forward(self, agent_qs, states):
+        return self.qmixer1(agent_qs, states), self.qmixer2(agent_qs, states)

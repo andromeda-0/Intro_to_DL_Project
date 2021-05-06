@@ -17,8 +17,8 @@ def get_args():
                         choices=['simple_adversary', 'simple_crypto', 'simple_push',
                                  'simple_reference', 'simple_speaker_listener', 'simple_spread',
                                  'simple_tag', 'simple_world_comm', 'simple'])
-    parser.add_argument("--adv_algo", type=str, default='matd3', help="adversary algorithm",
-                        choices=['qmix', 'maddpg', 'matd3'])
+    parser.add_argument("--adv_algo", type=str, default='qmix_td3', help="adversary algorithm",
+                        choices=['qmix', 'maddpg', 'matd3', 'qmix_td3'])
     parser.add_argument("--agent_algo", type=str, default='maddpg', help="agent algorithm",
                         choices=['qmix', 'maddpg'])
     parser.add_argument("--n_episodes", type=int, default=25000, help="number of training episodes")
