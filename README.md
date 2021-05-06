@@ -13,3 +13,4 @@ Multi-agent Reinforcement Learning
 1. Baseline implementation (MADDPG): https://github.com/shariqiqbal2810/maddpg-pytorch
 2. MADDPG paper: https://arxiv.org/abs/1706.02275
 3. QMIX paper: https://arxiv.org/abs/1803.11485
+4. Social influence paper: http://proceedings.mlr.press/v97/jaques19a/jaques19a.pdf
