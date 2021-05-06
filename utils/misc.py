@@ -48,6 +48,7 @@ def get_args():
     parser.add_argument("--seed", type=int, default=int(10), help="random seed for experiment")
     parser.add_argument('--social_adv', action='store_true')
     parser.add_argument('--social_agent', action='store_true')
+    parser.add_argument('--beta', type=float, default=-0.5)
     args = parser.parse_args()
 
     return args

@@ -5,8 +5,6 @@ import matplotlib.pyplot as plt
 from utils.replay_buffer import ReplayBuffer
 from algorithm.policy import Policy
 
-BETA = -0.5
-
 
 class Runner:
     def __init__(self, args, env):
@@ -26,7 +24,13 @@ class Runner:
         self.n_teams = self.policy.n_teams
         self.n_agents = self.policy.n_agents
         self.teams = self.policy.teams
-        self.save_path = os.path.join(self.args.model_dir, self.args.scenario_name)
+        self.BETA = args.beta
+
+        self.save_path = os.path.join(self.args.model_dir, self.args.scenario_name + '_adv_' +
+                                      self.args.adv_aglo + '_agent_' + self.args.agent_algo + '_'
+                                      + str(self.BETA) + '_social_' + (
+                                          'adv' if args.social_adv else '') + (
+                                          'agent' if args.social_agent else ''))
 
     def run(self):
         returns = [[] for _ in range(self.n_agents)]
@@ -49,7 +53,7 @@ class Runner:
 
                 s_next, rewards, done, _ = self.env.step(actions)
                 for i in range(self.n_agents):
-                    r.append([rewards[i] + influence[i] * BETA])
+                    r.append([rewards[i] + influence[i] * self.BETA])
                 self.buffer.store_transition(s, s_next, u, r)
                 s = s_next
                 if self.buffer.current_size >= self.args.batch_size:
