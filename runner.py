@@ -27,7 +27,7 @@ class Runner:
         self.BETA = args.beta
 
         self.save_path = os.path.join(self.args.model_dir, self.args.scenario_name + '_adv_' +
-                                      self.args.adv_aglo + '_agent_' + self.args.agent_algo + '_'
+                                      self.args.adv_algo + '_agent_' + self.args.agent_algo + '_'
                                       + str(self.BETA) + '_social_' + (
                                           'adv' if args.social_adv else '') + (
                                           'agent' if args.social_agent else ''))
