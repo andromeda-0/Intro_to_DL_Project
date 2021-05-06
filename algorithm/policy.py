@@ -28,7 +28,12 @@ class Policy:
         self.prev_actions = torch.zeros((self.n_agents, 2))
         self.influence_mask = influence_mask
 
-        self.model_path = os.path.join(self.args.model_dir, self.args.scenario_name)
+        self.model_path = os.path.join(self.args.model_dir, self.args.scenario_name + '_adv_' +
+                                       self.args.adv_algo + '_agent_' + self.args.agent_algo + '_'
+                                       + str(args.beta) + '_social_' + (
+                                           'adv' if args.social_adv else '') + (
+                                           'agent' if args.social_agent else ''))
+
         if not os.path.exists(self.model_path):
             os.makedirs(self.model_path)
         for i, a in enumerate(self.agents):
