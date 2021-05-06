@@ -24,6 +24,20 @@ class MLP(nn.Module):
         return out
 
 
+class TwineMLP(nn.Module):
+
+    def __init__(self, input_dim, output_dim, hidden_dim=64,
+                 constrain_out=False, discrete_action=True):
+        super().__init__()
+        self.mlp1 = MLP(input_dim, output_dim, hidden_dim=64,
+                        constrain_out=False, discrete_action=True)
+        self.mlp2 = MLP(input_dim, output_dim, hidden_dim=64,
+                        constrain_out=False, discrete_action=True)
+
+    def forward(self, x):
+        return self.mlp1(x), self.mlp2(x)
+
+
 class QMixer(nn.Module):
     def __init__(self, state_dim, n_agents, output_dim=1,
                  embed_dim=32, hypernet_embed=64):

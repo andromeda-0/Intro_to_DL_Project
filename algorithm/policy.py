@@ -161,10 +161,74 @@ class Policy:
         torch.nn.utils.clip_grad_norm_(curr_agent.actor.parameters(), 0.5)
         curr_agent.actor_optimizer.step()
 
+    def madtd3_update(self, batch, agent_i, update_policy=True):
+        curr_agent = self.agents[agent_i]
+        r = batch['r_%d' % agent_i]
+        o, u, o_next = [], [], []
+        for i in range(self.n_agents):
+            o.append(batch['o_%d' % i])
+            u.append(batch['u_%d' % i])
+            o_next.append(batch['o_next_%d' % i])
+
+        # -----critic update------
+        if self.discrete_action:
+            u_next = [onehot_from_logits(pi(obs_next)) for pi, obs_next in
+                      zip(self.target_policies, o_next)]
+        else:
+            u_next = [pi(obs_next) for pi, obs_next in zip(self.target_policies, o_next)]
+        next_state = torch.cat((*o_next, *u_next), dim=1)
+        curr_state = torch.cat((*o, *u), dim=1)
+
+        curr_q1, curr_q2 = curr_agent.critic(curr_state)
+        next_q1, next_q2 = curr_agent.target_critic(next_state)
+        next_q = torch.min(next_q1, next_q2)
+        target_q = r + self.gamma * next_q
+        critic_loss = MSELoss(curr_q1, target_q.detach()) + MSELoss(curr_q2, target_q.detach())
+
+        curr_agent.critic_optimizer.zero_grad()
+        critic_loss.backward()
+        torch.nn.utils.clip_grad_norm_(curr_agent.critic.parameters(), 0.5)
+        curr_agent.critic_optimizer.step()
+
+        # -----policy update-----
+        if update_policy:
+            if self.discrete_action:
+                curr_act = curr_agent.actor(o[agent_i])
+                # agent_action = gumbel_softmax(u, hard=True)
+                agent_action = gumbel_softmax(curr_act, hard=True)
+            else:
+                curr_act = curr_agent.actor(o[agent_i])
+                agent_action = curr_act
+
+            all_actions = []
+            for i, pi, obs in zip(range(self.n_agents), self.policies, o):
+                if i == agent_i:
+                    all_actions.append(agent_action)
+                else:
+                    all_actions.append(u[i])
+            critic_input = torch.cat((*o, *all_actions), dim=1)
+
+            curr_agent.actor_optimizer.zero_grad()
+            actor_loss = -curr_agent.critic.mlp1(critic_input).mean()
+            actor_loss.backward()
+            torch.nn.utils.clip_grad_norm_(curr_agent.actor.parameters(), 0.5)
+            curr_agent.actor_optimizer.step()
+
+            soft_update(curr_agent.target_critic, curr_agent.critic, self.tau)
+            soft_update(curr_agent.target_actor, curr_agent.actor, self.tau)
+
     def soft_update_all_target_networks(self):
         for a in self.agents:
             soft_update(a.target_critic, a.critic, self.tau)
             soft_update(a.target_actor, a.actor, self.tau)
+        for m in self.mixers:
+            soft_update(m.target_mixer, m.mixer, self.tau)
+
+    def soft_update_non_td3_target_networks(self):
+        for a in self.agents:
+            if not a.td3:
+                soft_update(a.target_critic, a.critic, self.tau)
+                soft_update(a.target_actor, a.actor, self.tau)
         for m in self.mixers:
             soft_update(m.target_mixer, m.mixer, self.tau)
 
@@ -182,7 +246,7 @@ class Policy:
                       agent_types]
 
         agent_init_params = []
-        for type, acsp, obsp in zip(agent_types, env.action_space, env.observation_space):
+        for type, acsp, obsp, algo in zip(agent_types, env.action_space, env.observation_space, agent_algo):
             actor_in_dim = obsp.shape[0]
             if isinstance(acsp, Box):
                 discrete_action = False
@@ -200,7 +264,8 @@ class Policy:
             agent_init_params.append({'type': type,
                                       'actor_in_dim': actor_in_dim,
                                       'actor_out_dim': actor_out_dim,
-                                      'critic_in_dim': critic_in_dim})
+                                      'critic_in_dim': critic_in_dim,
+                                      'td3': algo == 'matd3'})
 
         mixer_init_params = []
         for i in range(len(team_types)):

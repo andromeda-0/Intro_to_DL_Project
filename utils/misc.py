@@ -17,8 +17,8 @@ def get_args():
                         choices=['simple_adversary', 'simple_crypto', 'simple_push',
                                  'simple_reference', 'simple_speaker_listener', 'simple_spread',
                                  'simple_tag', 'simple_world_comm', 'simple'])
-    parser.add_argument("--adv_algo", type=str, default='qmix', help="adversary algorithm",
-                        choices=['qmix', 'maddpg'])
+    parser.add_argument("--adv_algo", type=str, default='matd3', help="adversary algorithm",
+                        choices=['qmix', 'maddpg', 'matd3'])
     parser.add_argument("--agent_algo", type=str, default='maddpg', help="agent algorithm",
                         choices=['qmix', 'maddpg'])
     parser.add_argument("--n_episodes", type=int, default=25000, help="number of training episodes")
@@ -47,6 +47,8 @@ def get_args():
     parser.add_argument("--load_model", action='store_true',
                         help="whether to load pretrained model")
     parser.add_argument("--seed", type=int, default=int(10), help="random seed for experiment")
+
+    parser.add_argument("--policy_update_freq", type=int, default=2)
     # parser.add_argument('--device', type=str, default='cuda:0', choices=['cuda:0', 'cpu'])
 
     args = parser.parse_args()
@@ -71,13 +73,13 @@ def make_env(args, discrete_action=False, benchmark=False):
         env = MultiAgentEnv(
             world, scenario.reset_world, scenario.reward,
             scenario.observation, scenario.benchmark_data,
-            # discrete_action=discrete_action
+            discrete_action=discrete_action
         )
     else:
         env = MultiAgentEnv(
             world, scenario.reset_world, scenario.reward,
             scenario.observation,
-            # discrete_action=discrete_action
+            discrete_action=discrete_action
         )
 
     return env
