@@ -48,21 +48,23 @@ class Runner:
                 self.buffer.store_transition(s, s_next, u, r)
                 s = s_next
                 if self.buffer.current_size >= self.args.batch_size:
-                    update_policy = episode % self.args.policy_update_freq == 0
+                    update_policy = (time_step % self.args.policy_update_freq) == 0
 
                     for i, a in enumerate(self.agents):
-                        batch = self.buffer.sample(self.args.batch_size)
                         if self.policy.agent_algo[i] == 'maddpg':
+                            batch = self.buffer.sample(self.args.batch_size)
                             self.policy.maddpg_update(batch, i)
                         elif self.policy.agent_algo[i] == 'matd3':
+                            batch = self.buffer.sample(self.args.batch_size)
                             self.policy.madtd3_update(batch, i, update_policy)
 
                     for i, m in enumerate(self.mixers):
-                        batch = self.buffer.sample(self.args.batch_size)
                         if self.policy.team_algo[i] == 'qmix':
+                            batch = self.buffer.sample(self.args.batch_size)
                             self.policy.qmix_update(batch, i)
                         elif self.policy.team_algo[i] == 'qmix_td3':
-                            self.policy.double_qmix_update(batch, i)
+                            batch = self.buffer.sample(self.args.batch_size)
+                            self.policy.double_qmix_update(batch, i, update_policy)
 
                     self.policy.soft_update_non_td3_target_networks()
             self.noise = max(self.min_noise, self.noise - self.anneal_noise)

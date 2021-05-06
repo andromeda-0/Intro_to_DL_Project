@@ -62,17 +62,22 @@ class QMixer(nn.Module):
                                       nn.Linear(hypernet_embed, self.embed_dim))
         self.hyper_b2 = nn.Sequential(nn.Linear(self.state_dim, hypernet_embed),
                                       nn.ReLU(inplace=True),
-                                      nn.Linear(hypernet_embed, output_dim))
+                                      nn.Linear(hypernet_embed, output_dim),
+                                      nn.ReLU(inplace=True))
 
     def forward(self, agent_qs, states):
         agent_qs = agent_qs.view(-1, 1, self.n_agents)
 
         w1 = self.hyper_w1(states).view(-1, self.n_agents, self.embed_dim)
+        w1 = torch.abs(w1)
+
         b1 = self.hyper_b1(states).view(-1, 1, self.embed_dim)
 
         hidden_1 = F.relu(torch.bmm(agent_qs, w1) + b1, inplace=True)
 
         w2 = self.hyper_w2(states).view(-1, self.embed_dim, 1)
+        w2 = torch.abs(w2)
+
         b2 = self.hyper_b2(states).view(-1, 1, 1)
 
         y = torch.bmm(hidden_1, w2) + b2

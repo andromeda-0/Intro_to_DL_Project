@@ -309,7 +309,8 @@ class Policy:
                 soft_update(a.target_critic, a.critic, self.tau)
                 soft_update(a.target_actor, a.actor, self.tau)
         for m in self.mixers:
-            soft_update(m.target_mixer, m.mixer, self.tau)
+            if not m.td3:
+                soft_update(m.target_mixer, m.mixer, self.tau)
 
     @classmethod
     def init_from_env(cls, args, env):

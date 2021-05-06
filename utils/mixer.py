@@ -14,6 +14,7 @@ class Mixer:
             self.mixer = DoubleQMixer(state_dim=mixer_state_dim, n_agents=n_agents).to(device=device)
         else:
             self.mixer = QMixer(state_dim=mixer_state_dim, n_agents=n_agents).to(device=device)
+        self.td3 = td3
         self.target_mixer = deepcopy(self.mixer)
 
         self.critic_mixer_param = list(self.mixer.parameters())
