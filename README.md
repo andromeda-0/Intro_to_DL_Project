@@ -1,6 +1,7 @@
-# CMU Introduction to Deep Learning Spring 2020 Team Project - Social Influence
+# Toward Action-value Function Estimation, Social Influence, and Communication in Multi-Agent Reinforcement Learning
+CMU Introduction to Deep Learning Spring 2021 Team Project
 
-This branch is contains all work related to social influence in this project.
+This branch contains work related to social influence in this project.
 
 ## Requirements:
 
