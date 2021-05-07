@@ -1,4 +1,4 @@
-# Toward Action-value Function Estimation, Social Influence, and Communication in Multi-Agent Reinforcement Learning
+# Toward Action-value Function Estimation with Social Influence and Communication in Multi-Agent Reinforcement Learning
 CMU Introduction to Deep Learning Spring 2021 Team Project
 
 # Requirements:
