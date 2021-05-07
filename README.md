@@ -1,5 +1,5 @@
-# CMU Introduction to Deep Learning Spring 2020 Term Project
-Multi-agent Reinforcement Learning
+# Toward Action-value Function Estimation, Social Influence, and Communication in Multi-Agent Reinforcement Learning
+CMU Introduction to Deep Learning Spring 2021 Team Project
 
 # Requirements:
 1. PyTorch
@@ -11,12 +11,11 @@ Multi-agent Reinforcement Learning
 2. MADDPG paper: https://arxiv.org/abs/1706.02275
 3. QMIX paper: https://arxiv.org/abs/1803.11485
 
-# Brief Introduction:
-
 # Run:
 
+`python main.py`.
 
 # Branches:
-- The `main` branch belongs to Tony Huang (runqih@andrew.cmu.edu). It contains both the MADDPG baseline and QMIX.
-- The `zongyuez` branch belongs to Zongyue Zhao (zongyuez@andrew.cmu.edu). It applies intrinsic motivation on top of the main branch.
+- The `main` branch is composed by Tony Huang (runqih@andrew.cmu.edu). It contains both the MADDPG baseline and QMIX, and is used as the cornerstone in other branches.
+- The `zongyuez` branch is composed by Zongyue Zhao (zongyuez@andrew.cmu.edu). It applies social influence as a form of intrinsic motivation to the adversarial agents.
 - TODO:
