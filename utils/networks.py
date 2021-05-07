@@ -46,24 +46,39 @@ class QMixer(nn.Module):
         self.state_dim = state_dim
         self.n_agents = n_agents
 
-        self.hyper_w1 = nn.Sequential(nn.Linear(self.state_dim, hypernet_embed),
-                                      nn.ReLU(inplace=True),
-                                      nn.Linear(hypernet_embed, hypernet_embed),
-                                      nn.ReLU(inplace=True),
-                                      nn.Linear(hypernet_embed, self.embed_dim * self.n_agents))
-        self.hyper_w2 = nn.Sequential(nn.Linear(self.state_dim, hypernet_embed),
-                                      nn.ReLU(inplace=True),
-                                      nn.Linear(hypernet_embed, hypernet_embed),
-                                      nn.ReLU(inplace=True),
-                                      nn.Linear(hypernet_embed, self.embed_dim))
+        self.hyper_w1 = nn.Sequential(
+            # nn.Linear(self.state_dim, hypernet_embed),
+            # nn.ReLU(inplace=True),
+            # nn.Linear(hypernet_embed, hypernet_embed),
+            # nn.ReLU(inplace=True),
+            # nn.Linear(hypernet_embed, self.embed_dim * self.n_agents),
 
-        self.hyper_b1 = nn.Sequential(nn.Linear(self.state_dim, hypernet_embed),
-                                      nn.ReLU(inplace=True),
-                                      nn.Linear(hypernet_embed, self.embed_dim))
-        self.hyper_b2 = nn.Sequential(nn.Linear(self.state_dim, hypernet_embed),
-                                      nn.ReLU(inplace=True),
-                                      nn.Linear(hypernet_embed, output_dim),
-                                      nn.ReLU(inplace=True))
+            nn.Linear(self.state_dim, self.embed_dim * self.n_agents),
+        )
+
+        self.hyper_w2 = nn.Sequential(
+            # nn.Linear(self.state_dim, hypernet_embed),
+            # nn.ReLU(inplace=True),
+            # nn.Linear(hypernet_embed, hypernet_embed),
+            # nn.ReLU(inplace=True),
+            # nn.Linear(hypernet_embed, self.embed_dim),
+
+            nn.Linear(self.state_dim, self.embed_dim),
+        )
+
+        self.hyper_b1 = nn.Sequential(
+            # nn.Linear(self.state_dim, hypernet_embed),
+            # nn.ReLU(inplace=True),
+            # nn.Linear(hypernet_embed, self.embed_dim),
+
+            nn.Linear(self.state_dim, self.embed_dim)
+        )
+
+        self.hyper_b2 = nn.Sequential(
+            nn.Linear(self.state_dim, hypernet_embed),
+            nn.ReLU(inplace=True),
+            nn.Linear(hypernet_embed, output_dim),
+        )
 
     def forward(self, agent_qs, states):
         agent_qs = agent_qs.view(-1, 1, self.n_agents)
@@ -73,7 +88,7 @@ class QMixer(nn.Module):
 
         b1 = self.hyper_b1(states).view(-1, 1, self.embed_dim)
 
-        hidden_1 = F.relu(torch.bmm(agent_qs, w1) + b1, inplace=True)
+        hidden_1 = F.elu(torch.bmm(agent_qs, w1) + b1, inplace=True)
 
         w2 = self.hyper_w2(states).view(-1, self.embed_dim, 1)
         w2 = torch.abs(w2)

@@ -110,7 +110,7 @@ class Policy:
         torch.nn.utils.clip_grad_norm_(curr_team.actor_param, 0.1)
         curr_team.actor_optim.step()
 
-    def double_qmix_update(self, batch, mixer_i, update_policy=True):
+    def double_qmix_update(self, batch, mixer_i, update_policy=True, target_smoothing=True):
         curr_team = self.mixers[mixer_i]
         curr_type = curr_team.type
 
@@ -130,6 +130,8 @@ class Policy:
         else:
             u_next = [pi_target(obs_next) for pi_target, obs_next in
                       zip(self.target_policies, o_next)]
+            if target_smoothing:
+                u_next = [self.smoothing(ui) for ui in u_next]
         next_state = torch.cat((*o_next, *u_next), dim=1)
         curr_state = torch.cat((*o, *u), dim=1)
 
@@ -143,20 +145,29 @@ class Policy:
         qs1 = torch.cat(qs[0], dim=1)  # TODO: shape might mismatch, need testing
         qs2 = torch.cat(qs[1], dim=1)
 
-        qs_next = list(zip(*qs_next))  # [(q11, q12,...), ]
-        qs_next1 = torch.cat(qs_next[0], dim=1)
-        qs_next2 = torch.cat(qs_next[1], dim=1)
+        qs_next1, qs_next2 = list(zip(*qs_next))  # [(q11, q12,...), ]
+        qs_next1 = torch.cat(qs_next1, dim=1)
+        qs_next2 = torch.cat(qs_next2, dim=1)
         qs_next = torch.min(qs_next1, qs_next2)
 
-        curr_q_tot1 = curr_team.mixer.qmixer1(qs1, curr_state)
-        curr_q_tot2 = curr_team.mixer.qmixer2(qs2, curr_state)
+        curr_q_tot11 = curr_team.mixer.qmixer1(qs1, curr_state)
+        curr_q_tot12 = curr_team.mixer.qmixer1(qs2, curr_state)
+        curr_q_tot21 = curr_team.mixer.qmixer2(qs1, curr_state)
+        curr_q_tot22 = curr_team.mixer.qmixer2(qs2, curr_state)
+        # curr_q_tot1 = curr_team.mixer(qs1, curr_state)
+        # curr_q_tot2 = curr_team.mixer(qs2, curr_state)
 
         next_q_tot1, next_q_tot2 = curr_team.target_mixer(qs_next, next_state)
         next_q_tot = torch.min(next_q_tot1, next_q_tot2)
+        # next_q_tot = curr_team.target_mixer(qs_next, next_state)
+
         target_q_tot = r_tot + self.gamma * next_q_tot
 
         curr_team.critic_mixer_optim.zero_grad()
-        critic_loss = MSELoss(curr_q_tot1, target_q_tot.detach()) + MSELoss(curr_q_tot2, target_q_tot.detach())
+        critic_loss = MSELoss(curr_q_tot11, target_q_tot.detach()) + MSELoss(curr_q_tot12,
+                                                                             target_q_tot.detach()) + MSELoss(
+            curr_q_tot21, target_q_tot.detach()) + MSELoss(curr_q_tot22, target_q_tot.detach())
+        critic_loss /= 2.
         critic_loss.backward()
         torch.nn.utils.clip_grad_norm_(curr_team.critic_mixer_param, 5)
         curr_team.critic_mixer_optim.step()
@@ -165,10 +176,11 @@ class Policy:
             # ----- actor update -----
             all_actions, agent_qs = [], []
             for i, a in enumerate(self.agents):
-                if a.type == curr_type:
-                    all_actions.append(a.actor(o[i]))  # TODO: originally calculate from competitor's policy
-                else:
-                    all_actions.append(u[i])
+                # if a.type == curr_type:
+                #     all_actions.append(a.actor(o[i]))  # TODO: originally calculate from competitor's policy
+                # else:
+                #     all_actions.append(u[i])
+                all_actions.append(a.actor(o[i]))
             curr_state = torch.cat((*o, *all_actions), dim=1)
 
             for i, a in enumerate(self.agents):
@@ -178,16 +190,17 @@ class Policy:
 
             curr_team.actor_optim.zero_grad()
             q_tot = -curr_team.mixer.qmixer1(agent_qs, curr_state).mean()
+            # q_tot = -curr_team.mixer(agent_qs, curr_state).mean()
+
             q_tot.backward()
             torch.nn.utils.clip_grad_norm_(curr_team.actor_param, 0.1)
             curr_team.actor_optim.step()
 
-            for a in self.agents:
-                if a.type == curr_type:
-                    soft_update(a.target_critic, a.critic, self.tau)
-                    soft_update(a.target_actor, a.actor, self.tau)
-
-            soft_update(curr_team.target_mixer, curr_team.mixer, self.tau)
+            # for a in self.agents:
+            #     if a.type == curr_type:
+            #         soft_update(a.target_critic, a.critic, self.tau)
+            #         soft_update(a.target_actor, a.actor, self.tau)
+            # soft_update(curr_team.target_mixer, curr_team.mixer, self.tau)
 
     def maddpg_update(self, batch, agent_i):
         curr_agent = self.agents[agent_i]
@@ -240,7 +253,7 @@ class Policy:
         torch.nn.utils.clip_grad_norm_(curr_agent.actor.parameters(), 0.5)
         curr_agent.actor_optimizer.step()
 
-    def madtd3_update(self, batch, agent_i, update_policy=True):
+    def matd3_update(self, batch, agent_i, update_policy=True, target_smo0thing=True):
         curr_agent = self.agents[agent_i]
         r = batch['r_%d' % agent_i]
         o, u, o_next = [], [], []
@@ -255,6 +268,8 @@ class Policy:
                       zip(self.target_policies, o_next)]
         else:
             u_next = [pi(obs_next) for pi, obs_next in zip(self.target_policies, o_next)]
+            if target_smo0thing:
+                u_next = [self.smoothing(ui) for ui in u_next]
         next_state = torch.cat((*o_next, *u_next), dim=1)
         curr_state = torch.cat((*o, *u), dim=1)
 
@@ -293,8 +308,8 @@ class Policy:
             torch.nn.utils.clip_grad_norm_(curr_agent.actor.parameters(), 0.5)
             curr_agent.actor_optimizer.step()
 
-            soft_update(curr_agent.target_critic, curr_agent.critic, self.tau)
-            soft_update(curr_agent.target_actor, curr_agent.actor, self.tau)
+            # soft_update(curr_agent.target_critic, curr_agent.critic, self.tau)
+            # soft_update(curr_agent.target_actor, curr_agent.actor, self.tau)
 
     def soft_update_all_target_networks(self):
         for a in self.agents:
@@ -311,6 +326,20 @@ class Policy:
         for m in self.mixers:
             if not m.td3:
                 soft_update(m.target_mixer, m.mixer, self.tau)
+
+    def soft_update_td3_target_networks(self):
+        for a in self.agents:
+            if a.td3:
+                soft_update(a.target_critic, a.critic, self.tau)
+                soft_update(a.target_actor, a.actor, self.tau)
+        for m in self.mixers:
+            if m.td3:
+                soft_update(m.target_mixer, m.mixer, self.tau)
+
+    @staticmethod
+    def smoothing(x: torch.Tensor, bound=.1, var=.1):
+        noise = torch.clamp(torch.empty_like(x).normal_(0, var), -bound, bound)
+        return torch.clamp(x + noise, -1, 1)
 
     @classmethod
     def init_from_env(cls, args, env):
@@ -362,6 +391,7 @@ class Policy:
                     'n_agents': n_agents,
                     'mixer_state_dim': state_dim,
                     'td3': 'td3' in team_algo[i]
+                    # 'td3': False
                 })
 
         init_dict = {'args': args, 'agent_algo': agent_algo, 'team_algo': team_algo,

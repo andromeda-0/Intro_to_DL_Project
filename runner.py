@@ -56,7 +56,7 @@ class Runner:
                             self.policy.maddpg_update(batch, i)
                         elif self.policy.agent_algo[i] == 'matd3':
                             batch = self.buffer.sample(self.args.batch_size)
-                            self.policy.madtd3_update(batch, i, update_policy)
+                            self.policy.matd3_update(batch, i, update_policy)
 
                     for i, m in enumerate(self.mixers):
                         if self.policy.team_algo[i] == 'qmix':
@@ -67,6 +67,8 @@ class Runner:
                             self.policy.double_qmix_update(batch, i, update_policy)
 
                     self.policy.soft_update_non_td3_target_networks()
+                    if update_policy:
+                        self.policy.soft_update_td3_target_networks()
             self.noise = max(self.min_noise, self.noise - self.anneal_noise)
             self.epsilon = max(self.min_epsilon, self.epsilon - self.anneal_epsilon)
 
@@ -121,10 +123,16 @@ class Runner:
             for i in range(self.n_agents):
                 returns[i].append(r_e[i])
 
-        for i in range(self.args.evaluate_episodes):
-            for j in range(self.n_agents):
-                norm_return[j].append(
-                        (returns[j][i] - min(returns[j])) / (max(returns[j]) - min(returns[j])))
+        # for i in range(self.args.evaluate_episodes):
+        #     for j in range(self.n_agents):
+        #         norm_return[j].append(
+        #             (returns[j][i] - min(returns[j])) / (max(returns[j]) - min(returns[j])))
+
+        for j in range(self.n_agents):
+            min_j = min(returns[j])
+            max_j = max(returns[j])
+            for i in range(self.args.evaluate_episodes):
+                norm_return[j].append((returns[j][i] - min_j) / (max_j - min_j))
 
         ave_return = [np.mean(i) for i in returns]
         norm_score = [np.mean(i) for i in norm_return]
