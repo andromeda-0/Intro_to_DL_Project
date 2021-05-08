@@ -271,18 +271,18 @@ class Policy:
             actor_path = os.path.join(self.model_path, a.type, self.agent_algo[i], 'agent_%d' % i,
                                       'actor_params.pkl')
             if os.path.exists(actor_path):
-                a.actor.load_state_dict(torch.load(actor_path))
-                a.target_actor.load_state_dict(torch.load(actor_path))
+                a.actor.load_state_dict(torch.load(actor_path, map_location=self.device))
+                a.target_actor.load_state_dict(torch.load(actor_path, map_location=self.device))
                 print('{} {} successfully loaded actor network: {}'.format(a.type, i, actor_path))
             critic_path = os.path.join(self.model_path, a.type, self.agent_algo[i], 'agent_%d' % i,
                                        'critic_params.pkl')
             if os.path.exists(critic_path):
-                a.critic.load_state_dict(torch.load(critic_path))
-                a.target_critic.load_state_dict(torch.load(critic_path))
+                a.critic.load_state_dict(torch.load(critic_path, map_location=self.device))
+                a.target_critic.load_state_dict(torch.load(critic_path, map_location=self.device))
                 print('{} {} successfully loaded critic network: {}'.format(a.type, i, critic_path))
         for i, m in enumerate(self.mixers):
             mixer_path = os.path.join(self.model_path, m.type, 'qmix', 'mixer', 'qmix_params.pkl')
             if os.path.exists(mixer_path):
-                m.mixer.load_state_dict(torch.load(mixer_path))
-                m.target_mixer.load_state_dict(torch.load(mixer_path))
+                m.mixer.load_state_dict(torch.load(mixer_path, map_location=self.device))
+                m.target_mixer.load_state_dict(torch.load(mixer_path, map_location=self.device))
                 print('{} team successfully loaded mixer network: {}'.format(m.type, mixer_path))
