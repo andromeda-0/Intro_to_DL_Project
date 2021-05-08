@@ -1,8 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8ee5c3ac-3f16-4f51-ab19-72cf33841a7e" name="Default Changelist" comment="environment.py">
+    <list default="true" id="8ee5c3ac-3f16-4f51-ab19-72cf33841a7e" name="Default Changelist" comment="more results">
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-0.5_social_agent/adversary/qmix/data/adversary0_norm_score.pkl.npy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-0.5_social_agent/adversary/qmix/data/adversary0_returns.pkl.npy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-0.5_social_agent/adversary/qmix/data/adversary1_norm_score.pkl.npy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-0.5_social_agent/adversary/qmix/data/adversary1_returns.pkl.npy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-0.5_social_agent/adversary/qmix/data/adversary2_norm_score.pkl.npy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-0.5_social_agent/adversary/qmix/data/adversary2_returns.pkl.npy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-0.5_social_agent/adversary/qmix/plots/adversary0_returns.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-0.5_social_agent/adversary/qmix/plots/adversary1_returns.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-0.5_social_agent/adversary/qmix/plots/adversary2_returns.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-0.5_social_agent/agent/maddpg/data/agent3_norm_score.pkl.npy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-0.5_social_agent/agent/maddpg/data/agent3_returns.pkl.npy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-0.5_social_agent/agent/maddpg/plots/agent3_returns.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-1.0_social_adv/adversary/qmix/data/adversary0_norm_score.pkl.npy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-1.0_social_adv/adversary/qmix/data/adversary0_returns.pkl.npy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-1.0_social_adv/adversary/qmix/data/adversary1_norm_score.pkl.npy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-1.0_social_adv/adversary/qmix/data/adversary1_returns.pkl.npy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-1.0_social_adv/adversary/qmix/data/adversary2_norm_score.pkl.npy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-1.0_social_adv/adversary/qmix/data/adversary2_returns.pkl.npy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-1.0_social_adv/adversary/qmix/plots/adversary0_returns.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-1.0_social_adv/adversary/qmix/plots/adversary1_returns.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-1.0_social_adv/adversary/qmix/plots/adversary2_returns.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-1.0_social_adv/agent/maddpg/data/agent3_norm_score.pkl.npy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-1.0_social_adv/agent/maddpg/data/agent3_returns.pkl.npy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-1.0_social_adv/agent/maddpg/plots/agent3_returns.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/adversary/qmix/agent_0/actor_params.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/adversary/qmix/agent_0/critic_params.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/adversary/qmix/agent_1/actor_params.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/adversary/qmix/agent_1/critic_params.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/adversary/qmix/agent_2/actor_params.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/adversary/qmix/agent_2/critic_params.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/adversary/qmix/mixer/qmix_params.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/agent/maddpg/agent_3/actor_params.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/agent/maddpg/agent_3/critic_params.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/utils/check_data.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithm/policy.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithm/policy.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/adversary/qmix/data/adversary0_returns.pkl.npy" beforeDir="false" afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/adversary/qmix/data/adversary0_returns.pkl.npy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/adversary/qmix/data/adversary1_returns.pkl.npy" beforeDir="false" afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/adversary/qmix/data/adversary1_returns.pkl.npy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/adversary/qmix/data/adversary2_returns.pkl.npy" beforeDir="false" afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/adversary/qmix/data/adversary2_returns.pkl.npy" afterDir="false" />
@@ -11,11 +46,24 @@
       <change beforePath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/adversary/qmix/plots/adversary2_returns.png" beforeDir="false" afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/adversary/qmix/plots/adversary2_returns.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/agent/maddpg/data/agent3_returns.pkl.npy" beforeDir="false" afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/agent/maddpg/data/agent3_returns.pkl.npy" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/agent/maddpg/plots/agent3_returns.png" beforeDir="false" afterPath="$PROJECT_DIR$/model/simple_tag_adv_qmix_agent_maddpg_-5.0_social_adv/agent/maddpg/plots/agent3_returns.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/runner.py" beforeDir="false" afterPath="$PROJECT_DIR$/runner.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/misc.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/misc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/mixer.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/mixer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/networks.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/networks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/replay_buffer.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/replay_buffer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -39,7 +87,7 @@
     <property name="WebServerToolWindowPanel.toolwindow.show.date" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.permissions" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.size" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/environment" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/main.py" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
@@ -51,7 +99,7 @@
       <recent name="C:\Users\Zongyue\OneDrive\Documents\CMU\21Spring\11785\Project\Intro_to_DL_project\deprecated" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.main">
     <configuration default="true" type="MatlabApplication">
       <option name="FILE_PATH" value="" />
       <option name="INTERPRETER_PATH" value="" />
@@ -59,6 +107,50 @@
       <option name="PARENT_ENVS" value="true" />
       <option name="PARAMETERS" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="check_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Intro_to_DL_project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/utils" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/utils/check_data.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="evaluate" type="PythonConfigurationType" factoryName="Python">
+      <module name="Intro_to_DL_project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\Zongyue\anaconda3\envs\11785proj\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="--load_model --social_adv" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
@@ -75,7 +167,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
-      <option name="PARAMETERS" value="--social_adv --beta -5" />
+      <option name="PARAMETERS" value="--social_adv --beta -1" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -83,8 +175,14 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Python.main" />
+      <item itemvalue="Python.evaluate" />
+      <item itemvalue="Python.check_data" />
+    </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.check_data" />
         <item itemvalue="Python.main" />
       </list>
     </recent_temporary>
@@ -102,7 +200,7 @@
       <workItem from="1617592975628" duration="567000" />
       <workItem from="1617593556640" duration="3710000" />
       <workItem from="1617678977930" duration="3230000" />
-      <workItem from="1620009837305" duration="53162000" />
+      <workItem from="1620009837305" duration="64838000" />
     </task>
     <task id="LOCAL-00001" summary="Curr_act">
       <created>1617576555315</created>
@@ -272,7 +370,14 @@
       <option name="project" value="LOCAL" />
       <updated>1620349861198</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="more results">
+      <created>1620351263145</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1620351263145</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -320,30 +425,11 @@
     <MESSAGE value="unzip" />
     <MESSAGE value="remove deprecated files" />
     <MESSAGE value="environment.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="environment.py" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/runner.py</url>
-          <line>28</line>
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/runner.py</url>
-          <line>39</line>
-          <option name="timeStamp" value="11" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/runner.py</url>
-          <line>70</line>
-          <option name="timeStamp" value="13" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="more results" />
+    <option name="LAST_COMMIT_MESSAGE" value="more results" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Intro_to_DL_project$main.coverage" NAME="main Coverage Results" MODIFIED="1620336878675" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Intro_to_DL_project$main.coverage" NAME="main Coverage Results" MODIFIED="1620445754199" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Intro_to_DL_project$check_data.coverage" NAME="check_data Coverage Results" MODIFIED="1620355099333" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/utils" />
   </component>
 </project>

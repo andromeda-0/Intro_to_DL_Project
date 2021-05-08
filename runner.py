@@ -25,6 +25,7 @@ class Runner:
         self.n_agents = self.policy.n_agents
         self.teams = self.policy.teams
         self.BETA = args.beta
+        self.device = torch.device(args.gpu_id)
 
         self.save_path = os.path.join(self.args.model_dir, self.args.scenario_name + '_adv_' +
                                       self.args.adv_algo + '_agent_' + self.args.agent_algo + '_'
@@ -41,13 +42,14 @@ class Runner:
             for time_step in range(self.args.episode_length):
                 r = []
                 with torch.no_grad():
-                    torch_obs = [torch.tensor(s[i], dtype=torch.float32).view(1, -1) for i in
-                                 range(self.n_agents)]
+                    torch_obs = [
+                        torch.tensor(s[i], dtype=torch.float32, device=self.device).view(1, -1) for
+                        i in range(self.n_agents)]
                     u = self.policy.step(torch_obs, epsilon=self.epsilon, noise_rate=self.noise)
 
-                actions = [action.numpy().flatten() for action in u]
+                actions = [action.detach().cpu().numpy().flatten() for action in u]
                 for i, action in enumerate(actions):
-                    self.policy.prev_actions[i] = torch.as_tensor(action)
+                    self.policy.prev_actions[i] = torch.as_tensor(action, device=self.device)
 
                 influence = self.policy.influence(torch_obs)
 
@@ -107,10 +109,11 @@ class Runner:
                 if render:
                     self.env.render()
                 with torch.no_grad():
-                    torch_obs = [torch.tensor(s[i], dtype=torch.float32).view(1, -1) for i in
-                                 range(self.n_agents)]
+                    torch_obs = [
+                        torch.tensor(s[i], dtype=torch.float32, device=self.device).view(1, -1) for
+                        i in range(self.n_agents)]
                     u = self.policy.step(torch_obs, epsilon=0, noise_rate=0)
-                actions = [action.numpy().flatten() for action in u]
+                actions = [action.detach().cpu().numpy().flatten() for action in u]
                 s_next, r, done, info = self.env.step(actions)
                 s = s_next
                 for i in range(self.n_agents):

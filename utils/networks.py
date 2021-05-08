@@ -22,7 +22,8 @@ class MLP(nn.Module):
         if action is not None:
             x = torch.cat([x, action], dim=1)
         else:
-            x = torch.cat([x, torch.zeros(x.shape[0], self.additional_dim)], dim=1)
+            x = torch.cat([x, torch.zeros((x.shape[0], self.additional_dim), device=x.device)],
+                          dim=1)
 
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))

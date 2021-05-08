@@ -8,14 +8,15 @@ from utils.misc import gumbel_softmax, onehot_from_logits
 
 
 class Agent:
-    def __init__(self, actor_in_dim, actor_out_dim, critic_in_dim,
+    def __init__(self, actor_in_dim, actor_out_dim, critic_in_dim, device,
                  type, lr=0.0003, hidden_dim=64, discrete_action=True):
 
+        self.device = device
         self.actor = MLP(input_dim=actor_in_dim, output_dim=actor_out_dim,
                          constrain_out=True, discrete_action=discrete_action,
-                         additional_dim=2)
+                         additional_dim=2).to(device)
         self.critic = MLP(input_dim=critic_in_dim, output_dim=1,
-                          constrain_out=False)
+                          constrain_out=False).to(device)
         self.target_actor = deepcopy(self.actor)
         self.target_critic = deepcopy(self.critic)
 
@@ -27,7 +28,7 @@ class Agent:
         self.discrete_action = discrete_action
 
     def step(self, obs, epsilon, noise_rate):
-        action = self.actor(obs, torch.zeros((1, 2)))
+        action = self.actor(obs, torch.zeros((1, 2), device=self.device))
         if self.discrete_action:
             if np.random.uniform() < epsilon:  # explore
                 action = gumbel_softmax(action, hard=True)
@@ -35,9 +36,9 @@ class Agent:
                 action = onehot_from_logits(action)
         else:
             if np.random.uniform() < epsilon:  # explore
-                action = -2 * torch.rand((1, self.action_shape)) + 1
+                action = -2 * torch.rand((1, self.action_shape), device=self.device) + 1
             else:
-                noise = noise_rate * torch.rand((1, self.action_shape))
+                noise = noise_rate * torch.rand((1, self.action_shape), device=self.device)
                 action += noise
             action = action.clamp(-1, 1)
         return action

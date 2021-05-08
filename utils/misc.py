@@ -49,6 +49,7 @@ def get_args():
     parser.add_argument('--social_adv', action='store_true')
     parser.add_argument('--social_agent', action='store_true')
     parser.add_argument('--beta', type=float, default=-0.5)
+    parser.add_argument('--gpu_id', default='cuda:0')
     args = parser.parse_args()
 
     return args

@@ -13,6 +13,7 @@ class Policy:
     def __init__(self, args, agent_algo, team_algo, team_types,
                  agent_init_params, mixer_init_params,
                  gamma=0.95, tau=0.01, discrete_action=False, influence_mask=None):
+        self.device = torch.device(args.gpu_id)
         self.agents = [Agent(discrete_action=discrete_action, **param) for param in
                        agent_init_params]
         self.mixers = [Mixer(agents=self.agents, **param) for param in mixer_init_params]
@@ -25,8 +26,8 @@ class Policy:
         self.gamma = gamma
         self.tau = tau
         self.discrete_action = discrete_action
-        self.prev_actions = torch.zeros((self.n_agents, 2))
-        self.influence_mask = influence_mask
+        self.prev_actions = torch.zeros((self.n_agents, 2), device=self.device)
+        self.influence_mask = influence_mask.to(self.device)
 
         self.model_path = os.path.join(self.args.model_dir, self.args.scenario_name + '_adv_' +
                                        self.args.adv_algo + '_agent_' + self.args.agent_algo + '_'
@@ -60,7 +61,7 @@ class Policy:
                 zip(self.agents, observations)]
 
     def influence(self, observations):
-        rewards = torch.zeros(self.n_agents)
+        rewards = torch.zeros(self.n_agents, device=self.device)
         for i in range(self.n_agents):
             for j in range(self.n_agents):
                 if i == j:
@@ -224,7 +225,8 @@ class Policy:
             agent_init_params.append({'type': type,
                                       'actor_in_dim': actor_in_dim,
                                       'actor_out_dim': actor_out_dim,
-                                      'critic_in_dim': critic_in_dim})
+                                      'critic_in_dim': critic_in_dim,
+                                      'device': torch.device(args.gpu_id)}, )
 
         mixer_init_params = []
         for i in range(len(team_types)):
@@ -238,7 +240,8 @@ class Policy:
                     state_dim += get_shape(acsp)
                 mixer_init_params.append({'type': team_types[i],
                                           'n_agents': n_agents,
-                                          'mixer_state_dim': state_dim})
+                                          'mixer_state_dim': state_dim,
+                                          'device': torch.device(args.gpu_id)})
 
         init_dict = {'args': args, 'agent_algo': agent_algo, 'team_algo': team_algo,
                      'team_types': team_types,

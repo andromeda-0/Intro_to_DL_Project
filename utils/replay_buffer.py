@@ -21,6 +21,7 @@ class ReplayBuffer:
             self.buffer['r_%d' % i] = np.empty([self.size, 1])
             self.buffer['o_next_%d' % i] = np.empty([self.size, self.observation_shape[i]])
         self.lock = threading.Lock()
+        self.device = torch.device(args.gpu_id)
 
     def store_transition(self, o, o_next, u, r):
         idxs = self._get_storage_idx(inc=1)
@@ -28,8 +29,8 @@ class ReplayBuffer:
             with self.lock:
                 self.buffer['o_%d' % i][idxs] = o[i]
                 self.buffer['o_next_%d' % i][idxs] = o_next[i]
-                self.buffer['u_%d' % i][idxs] = u[i]
-                self.buffer['r_%d' % i][idxs] = r[i]
+                self.buffer['u_%d' % i][idxs] = u[i].detach().cpu().numpy()
+                self.buffer['r_%d' % i][idxs] = r[i][0].detach().cpu().numpy()
 
     def sample(self, batch_size):
         temp_buffer = {}
@@ -37,7 +38,8 @@ class ReplayBuffer:
         for key in self.buffer.keys():
             temp_buffer[key] = self.buffer[key][idx]
         for key in temp_buffer.keys():
-            temp_buffer[key] = torch.tensor(temp_buffer[key], dtype=torch.float32)
+            temp_buffer[key] = torch.tensor(temp_buffer[key], dtype=torch.float32,
+                                            device=self.device)
         return temp_buffer
 
     def _get_storage_idx(self, inc=None):
