@@ -17,5 +17,5 @@ CMU Introduction to Deep Learning Spring 2021 Team Project
 
 # Branches:
 - The `main` branch is composed by Tony Huang (runqih@andrew.cmu.edu). It contains both the MADDPG baseline and QMIX, and is used as the cornerstone in other branches.
-- The `zongyuez` branch is composed by Zongyue Zhao (zongyuez@andrew.cmu.edu). It applies social influence as a form of intrinsic motivation to the adversarial agents.
+- The `zongyuez` branch is composed by Zongyue Zhao (zongyuez@andrew.cmu.edu). It applies social influence as a form of intrinsic motivation.
 - TODO:
