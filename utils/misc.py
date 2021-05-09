@@ -26,9 +26,19 @@ def get_args():
     parser.add_argument("--noise_rate", type=float, default=0.5, help="noise for action")
     parser.add_argument("--min_noise_rate", type=float, default=0.05,
                         help="minimum noise for action")
+
+    parser.add_argument("--noise_rate_adv", type=float, default=0.5, help="noise for action")
+    parser.add_argument("--min_noise_rate_adv", type=float, default=0.25,
+                        help="minimum noise for action")
+
     parser.add_argument("--epsilon", type=float, default=0.5, help="epsilon for epsilon greddy")
     parser.add_argument("--min_epsilon", type=float, default=0.05,
                         help="minimum epsilon for epsilon greddy")
+
+    parser.add_argument("--epsilon_adv", type=float, default=0.5, help="epsilon for epsilon greddy")
+    parser.add_argument("--min_epsilon_adv", type=float, default=0.25,
+                        help="minimum epsilon for epsilon greddy")
+
     parser.add_argument("--anneal_episodes", type=int, default=10000,
                         help="number of episodes to anneal")
     parser.add_argument("--buffer_size", type=int, default=int(1e6),

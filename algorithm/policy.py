@@ -49,8 +49,13 @@ class Policy:
         return [a.target_actor for a in self.agents]
 
     def step(self, observations, epsilon, noise_rate):
-        return [a.step(obs, epsilon=epsilon, noise_rate=noise_rate) for a, obs in
-                zip(self.agents, observations)]
+        if not isinstance(epsilon, list):
+            epsilon = (epsilon,) * len(self.agents)
+        if not isinstance(noise_rate, list):
+            noise_rate = (noise_rate,) * len(self.agents)
+
+        return [a.step(obs, epsilon=eps, noise_rate=rate) for a, obs, rate, eps in
+                zip(self.agents, observations, noise_rate, epsilon)]
 
     def qmix_update(self, batch, mixer_i):
         curr_team = self.mixers[mixer_i]
@@ -132,12 +137,17 @@ class Policy:
                       zip(self.target_policies, o_next)]
             if target_smoothing:
                 u_next = [self.smoothing(ui) for ui in u_next]
-        next_state = torch.cat((*o_next, *u_next), dim=1)
-        curr_state = torch.cat((*o, *u), dim=1)
+        # next_state = torch.cat((*o_next, *u_next), dim=1)
+        # curr_state = torch.cat((*o, *u), dim=1)
 
         qs, qs_next = [], []
         for i, a in enumerate(self.agents):
             if a.type == curr_type:
+                # next_state = torch.cat((o_next[i], u_next[i], u_next[-1]), dim=1)
+                # curr_state = torch.cat((o[i], u[i], u[-1]), dim=1)
+                next_state = torch.cat((o_next[i], u_next[i], u_next[-1], o_next[-1]), dim=1)
+                curr_state = torch.cat((o[i], u[i], u[-1], o[-1]), dim=1)
+
                 qs.append(a.critic(curr_state))  # [(q1, q2),]
                 qs_next.append(a.target_critic(next_state))
 
@@ -149,6 +159,9 @@ class Policy:
         qs_next1 = torch.cat(qs_next1, dim=1)
         qs_next2 = torch.cat(qs_next2, dim=1)
         qs_next = torch.min(qs_next1, qs_next2)
+
+        curr_state = torch.cat((*o,), dim=1)
+        next_state = torch.cat((*o_next,), dim=1)
 
         curr_q_tot11 = curr_team.mixer.qmixer1(qs1, curr_state)
         curr_q_tot12 = curr_team.mixer.qmixer1(qs2, curr_state)
@@ -176,18 +189,21 @@ class Policy:
             # ----- actor update -----
             all_actions, agent_qs = [], []
             for i, a in enumerate(self.agents):
-                # if a.type == curr_type:
-                #     all_actions.append(a.actor(o[i]))  # TODO: originally calculate from competitor's policy
-                # else:
-                #     all_actions.append(u[i])
-                all_actions.append(a.actor(o[i]))
-            curr_state = torch.cat((*o, *all_actions), dim=1)
+                if a.type == curr_type:
+                    all_actions.append(a.actor(o[i]))  # TODO: originally calculate from competitor's policy
+                else:
+                    all_actions.append(u[i])
+                # all_actions.append(a.actor(o[i]))
 
             for i, a in enumerate(self.agents):
                 if a.type == curr_type:
+                    # curr_state = torch.cat((o[i], all_actions[i], all_actions[-1]), dim=1)
+                    curr_state = torch.cat((o[i], all_actions[i], all_actions[-1], o[-1]), dim=1)
+
                     agent_qs.append(a.critic.mlp1(curr_state))
             agent_qs = torch.cat(agent_qs, dim=1)
 
+            curr_state = torch.cat((*o,), dim=1)
             curr_team.actor_optim.zero_grad()
             q_tot = -curr_team.mixer.qmixer1(agent_qs, curr_state).mean()
             # q_tot = -curr_team.mixer(agent_qs, curr_state).mean()
@@ -366,9 +382,16 @@ class Policy:
             actor_out_dim = get_shape(acsp)
 
             critic_in_dim = 0
-            for o_dim, a_dim in zip(env.observation_space, env.action_space):
-                critic_in_dim += o_dim.shape[0]
-                critic_in_dim += get_shape(a_dim)
+            if 'qmix' in algo:
+                for i, (o_dim, a_dim) in enumerate(zip(env.observation_space, env.action_space)):
+                    if agent_algo[i] != algo:
+                        critic_in_dim += o_dim.shape[0]
+                        critic_in_dim += get_shape(a_dim)
+                critic_in_dim += (get_shape(acsp) + obsp.shape[0])
+            else:
+                for o_dim, a_dim in zip(env.observation_space, env.action_space):
+                    critic_in_dim += o_dim.shape[0]
+                    critic_in_dim += get_shape(a_dim)
 
             agent_init_params.append({'type': type,
                                       'actor_in_dim': actor_in_dim,
@@ -385,7 +408,7 @@ class Policy:
                     if type == team_types[i]:
                         n_agents += 1
                     state_dim += obsp.shape[0]
-                    state_dim += get_shape(acsp)
+                    # state_dim += get_shape(acsp)
                 mixer_init_params.append({
                     'type': team_types[i],
                     'n_agents': n_agents,

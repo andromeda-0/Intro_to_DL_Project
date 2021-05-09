@@ -13,12 +13,21 @@ class Runner:
         self.args = args
         self.env = env
         self.n_agents = len(self.env.agents)
+
         self.noise = self.args.noise_rate
         self.min_noise = self.args.min_noise_rate
+        self.anneal_noise = (self.noise - self.min_noise) / self.args.anneal_episodes
+        self.noise_adv = self.args.noise_rate_adv
+        self.min_noise_adv = self.args.min_noise_rate_adv
+        self.anneal_noise_adv = (self.noise_adv - self.min_noise_adv) / self.args.anneal_episodes
+
         self.epsilon = self.args.epsilon
         self.min_epsilon = self.args.min_epsilon
         self.anneal_epsilon = (self.epsilon - self.min_epsilon) / self.args.anneal_episodes
-        self.anneal_noise = (self.noise - self.min_epsilon) / self.args.anneal_episodes
+        self.epsilon_adv = self.args.epsilon_adv
+        self.min_epsilon_adv = self.args.min_epsilon_adv
+        self.anneal_epsilon_adv = (self.epsilon_adv - self.min_epsilon_adv) / self.args.anneal_episodes
+
         self.buffer = ReplayBuffer(self.args, self.env)
         self.policy = Policy.init_from_env(self.args, self.env)
         self.agents = self.policy.agents
@@ -39,7 +48,8 @@ class Runner:
                 with torch.no_grad():
                     torch_obs = [torch.tensor(s[i], dtype=torch.float32, device=device).view(1, -1) for i in
                                  range(self.n_agents)]
-                    u = self.policy.step(torch_obs, epsilon=self.epsilon, noise_rate=self.noise)
+                    u = self.policy.step(torch_obs, epsilon=[self.epsilon_adv] * 3 + [self.epsilon],
+                                         noise_rate=[self.noise_adv] * 3 + [self.noise])
                 # actions = [action.numpy().flatten() for action in u]
                 u = actions = torch.cat(u, dim=0).cpu().numpy()
                 s_next, rewards, done, _ = self.env.step(actions)
@@ -71,6 +81,9 @@ class Runner:
                         self.policy.soft_update_td3_target_networks()
             self.noise = max(self.min_noise, self.noise - self.anneal_noise)
             self.epsilon = max(self.min_epsilon, self.epsilon - self.anneal_epsilon)
+
+            self.noise_adv = max(self.min_noise_adv, self.noise_adv - self.anneal_noise_adv)
+            self.epsilon_adv = max(self.min_epsilon_adv, self.epsilon_adv - self.anneal_epsilon_adv)
 
             if episode > 0 and episode % self.args.evaluate_rate == 0:
                 print('Training Episode = %s' % episode)
@@ -113,7 +126,8 @@ class Runner:
                     self.env.render()
                 torch_obs = [torch.tensor(s[i], dtype=torch.float32, device=device).view(1, -1) for i in
                              range(self.n_agents)]
-                u = self.policy.step(torch_obs, epsilon=0, noise_rate=0)
+                u = self.policy.step(torch_obs, epsilon=0,
+                                     noise_rate=[.05] * 3 + [0])  # only predator use noise during eval
                 actions = torch.cat(u, dim=0).cpu().numpy()
                 # actions = [action.cpu().numpy().flatten() for action in u]
                 s_next, r, done, info = self.env.step(actions)
