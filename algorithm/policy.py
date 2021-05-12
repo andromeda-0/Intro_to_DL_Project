@@ -8,11 +8,18 @@ from utils.misc import soft_update, hard_update, onehot_from_logits, gumbel_soft
 
 MSELoss = torch.nn.MSELoss()
 
+
 class Policy:
     def __init__(self, args, agent_algo, team_algo, team_types,
                  agent_init_params, mixer_init_params,
                  gamma=0.95, tau=0.01, discrete_action=False):
-        self.agents = [Agent(discrete_action=discrete_action, **param) for param in agent_init_params]
+        if args.param_sharing == 'individual':
+            self.agents = [Agent(discrete_action=discrete_action, **param) for param in agent_init_params]
+        elif args.param_sharing == 'team':
+            agents = {}; self.agents = []
+            for param in agent_init_params:
+                if param['type'] not in agents: agents[param['type']] = Agent(discrete_action=discrete_action, **param)
+                self.agents.append(agents[param['type']])
         self.mixers = [Mixer(agents=self.agents, **param) for param in mixer_init_params]
         self.agent_algo = agent_algo
         self.team_algo = team_algo
@@ -38,20 +45,40 @@ class Policy:
         if self.args.load_model:
             self.load_model()
 
-
     @property
     def policies(self):
         return [a.actor for a in self.agents]
-
 
     @property
     def target_policies(self):
         return [a.target_actor for a in self.agents]
 
-
+    def forward_communicate(self, models, inputs):
+        inputs_cat = {type: [] for type in self.teams}
+        for inp,a in zip(inputs, self.agents):
+            inputs_cat[a.type].append(inp.unsqueeze(dim=1))
+        for key,val in inputs_cat.items():
+            inputs_cat[key] = torch.cat(val, dim=1)
+        outputs = []
+        for ix,(model,a) in enumerate(zip(models,self.agents)):
+            outputs.append(model(inputs_cat[a.type], agent_ix=ix))
+        return outputs        
+    
     def step(self, observations, epsilon, noise_rate):
-        return [a.step(obs, epsilon=epsilon, noise_rate=noise_rate) for a, obs in zip(self.agents, observations)]
-
+        if 'communicate' in self.args.model_type:
+            observations_cat = {type: [] for type in self.teams}
+            for obs, a in zip(observations,self.agents):
+                observations_cat[a.type].append(obs.unsqueeze(dim=1))
+            for key,val in observations_cat.items():
+                observations_cat[key] = torch.cat(val, dim=1)
+            outputs = []
+            for ix,a in enumerate(self.agents):
+                outputs.append(a.step(observations_cat[a.type], epsilon=epsilon, 
+                                      noise_rate=noise_rate, agent_ix=ix))
+            return outputs
+        else:
+            return [a.step(obs, epsilon=epsilon, noise_rate=noise_rate) for a, obs in
+                    zip(self.agents, observations)]
 
     def qmix_update(self, batch, mixer_i):
         curr_team = self.mixers[mixer_i]
@@ -67,10 +94,12 @@ class Policy:
         r_tot = torch.cat(r, dim=1).sum(dim=1, keepdim=True)
 
         # ----- critic + mixer update -----
-        if self.discrete_action:
-            u_next = [onehot_from_logits(pi_target(obs_next)) for pi_target, obs_next in zip(self.target_policies, o_next)]
+        if 'communicate' in self.args.model_type:
+            u_next = self.forward_communicate(self.target_policies, o_next)
         else:
             u_next = [pi_target(obs_next) for pi_target, obs_next in zip(self.target_policies, o_next)]
+        if self.discrete_action:
+            u_next = [onehot_from_logits(logits) for logits in u_next]
         next_state = torch.cat((*o_next, *u_next), dim=1)
         curr_state = torch.cat((*o, *u), dim=1)
 
@@ -94,8 +123,13 @@ class Policy:
 
         # ----- actor update -----
         all_actions, agent_qs = [], []
-        for i, a in enumerate(self.agents):
-            all_actions.append(a.actor(o[i]))
+        if 'communicate' in self.args.model_type:
+            all_actions = self.forward_communicate(self.policies, o)
+        else:
+            all_actions = [a.actor(o[i]) for i,a in enumerate(self.agents)]
+#         all_actions = []
+#         for i, a in enumerate(self.agents):
+#             all_actions.append(a.actor(o[i]))
         curr_state = torch.cat((*o, *all_actions), dim=1)
 
         for i, a in enumerate(self.agents):
@@ -109,7 +143,6 @@ class Policy:
         torch.nn.utils.clip_grad_norm_(curr_team.actor_param, 0.1)
         curr_team.actor_optim.step()
 
-
     def maddpg_update(self, batch, agent_i):
         curr_agent = self.agents[agent_i]
         r = batch['r_%d' % agent_i]
@@ -120,10 +153,12 @@ class Policy:
             o_next.append(batch['o_next_%d' % i])
 
         # -----critic update------
-        if self.discrete_action:
-            u_next = [onehot_from_logits(pi(obs_next)) for pi, obs_next in zip(self.target_policies, o_next)]
+        if 'communicate' in self.args.model_type:
+            u_next = self.forward_communicate(self.target_policies, o_next)
         else:
-            u_next = [pi(obs_next) for pi, obs_next in zip(self.target_policies, o_next)]
+            u_next = [pi_target(obs_next) for pi_target, obs_next in zip(self.target_policies, o_next)]
+        if self.discrete_action:
+            u_next = [onehot_from_logits(logits) for logits in u_next]
         next_state = torch.cat((*o_next, *u_next), dim=1)
         curr_state = torch.cat((*o, *u), dim=1)
 
@@ -138,19 +173,21 @@ class Policy:
         curr_agent.critic_optimizer.step()
 
         # -----policy update-----
-        if self.discrete_action:
-            curr_act = curr_agent.actor(o[agent_i])
-            agent_action = gumbel_softmax(curr_act, hard=True)
+        if 'communicate' in self.args.model_type:
+            o_cat = [obs.unsqueeze(1) for obs,a in zip(o,self.agents) if a.type==curr_agent.type]
+            o_cat = torch.cat(o_cat, dim=1)
+            agent_action = curr_agent.actor(o_cat,agent_ix=agent_i)
         else:
-            curr_act = curr_agent.actor(o[agent_i])
-            agent_action = curr_act
+            agent_action = curr_agent.actor(o[agent_i])
+        if self.discrete_action:
+            agent_action = gumbel_softmax(agent_action, hard=True)
 
-        all_actions = []
-        for i, pi, obs in zip(range(self.n_agents), self.policies, o):
-            if i == agent_i:
-                all_actions.append(agent_action)
-            else:
-                all_actions.append(u[i])
+        all_actions = [agent_action if i==agent_i else u[i] for i in range(self.n_agents)]
+#         for i, pi, obs in zip(range(self.n_agents), self.policies, o):
+#             if i == agent_i:
+#                 all_actions.append(agent_action)
+#             else:
+#                 all_actions.append(u[i])
         critic_input = torch.cat((*o, *all_actions), dim=1)
 
         curr_agent.actor_optimizer.zero_grad()
@@ -159,14 +196,12 @@ class Policy:
         torch.nn.utils.clip_grad_norm_(curr_agent.actor.parameters(), 0.5)
         curr_agent.actor_optimizer.step()
 
-
     def soft_update_all_target_networks(self):
         for a in self.agents:
             soft_update(a.target_critic, a.critic, self.tau)
             soft_update(a.target_actor, a.actor, self.tau)
         for m in self.mixers:
             soft_update(m.target_mixer, m.mixer, self.tau)
-
 
     @classmethod
     def init_from_env(cls, args, env):
@@ -176,8 +211,10 @@ class Policy:
             agent_types = ['agent' for agent in env.agents]
 
         team_types = list(dict.fromkeys(agent_types).keys())
-        team_algo = [args.adv_algo if atype == 'adversary' else args.agent_algo for atype in team_types]
-        agent_algo = [args.adv_algo if atype == 'adversary' else args.agent_algo for atype in agent_types]
+        team_algo = [args.adv_algo if atype == 'adversary' else args.agent_algo for atype in
+                     team_types]
+        agent_algo = [args.adv_algo if atype == 'adversary' else args.agent_algo for atype in
+                      agent_types]
 
         agent_init_params = []
         for type, acsp, obsp in zip(agent_types, env.action_space, env.observation_space):
@@ -196,6 +233,7 @@ class Policy:
                 critic_in_dim += get_shape(a_dim)
 
             agent_init_params.append({'type': type,
+                                      'model_type': args.model_type,
                                       'actor_in_dim': actor_in_dim,
                                       'actor_out_dim': actor_out_dim,
                                       'critic_in_dim': critic_in_dim})
@@ -212,9 +250,11 @@ class Policy:
                     state_dim += get_shape(acsp)
                 mixer_init_params.append({'type': team_types[i],
                                           'n_agents': n_agents,
-                                          'mixer_state_dim': state_dim})
+                                          'mixer_state_dim': state_dim,
+                                          'param_sharing': args.param_sharing})
 
-        init_dict = {'args': args, 'agent_algo': agent_algo, 'team_algo': team_algo, 'team_types': team_types,
+        init_dict = {'args': args, 'agent_algo': agent_algo, 'team_algo': team_algo,
+                     'team_types': team_types,
                      'agent_init_params': agent_init_params, 'mixer_init_params': mixer_init_params,
                      'discrete_action': discrete_action}
         print(init_dict)
@@ -237,12 +277,14 @@ class Policy:
 
     def load_model(self):
         for i, a in enumerate(self.agents):
-            actor_path = os.path.join(self.model_path, a.type, self.agent_algo[i], 'agent_%d' % i, 'actor_params.pkl')
+            actor_path = os.path.join(self.model_path, a.type, self.agent_algo[i], 'agent_%d' % i,
+                                      'actor_params.pkl')
             if os.path.exists(actor_path):
                 a.actor.load_state_dict(torch.load(actor_path))
                 a.target_actor.load_state_dict(torch.load(actor_path))
                 print('{} {} successfully loaded actor network: {}'.format(a.type, i, actor_path))
-            critic_path = os.path.join(self.model_path, a.type, self.agent_algo[i], 'agent_%d' % i, 'critic_params.pkl')
+            critic_path = os.path.join(self.model_path, a.type, self.agent_algo[i], 'agent_%d' % i,
+                                       'critic_params.pkl')
             if os.path.exists(critic_path):
                 a.critic.load_state_dict(torch.load(critic_path))
                 a.target_critic.load_state_dict(torch.load(critic_path))

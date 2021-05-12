@@ -2,10 +2,11 @@ import os
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
-from tqdm import tqdm
 from utils.replay_buffer import ReplayBuffer
 from algorithm.policy import Policy
+from tqdm import tqdm, trange
 
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 class Runner:
     def __init__(self, args, env):
@@ -27,17 +28,17 @@ class Runner:
         self.teams = self.policy.teams
         self.save_path = os.path.join(self.args.model_dir, self.args.scenario_name)
 
-
     def run(self):
         returns = [[] for _ in range(self.n_agents)]
         norm_scores = [[] for _ in range(self.n_agents)]
 
-        for episode in tqdm(range(self.args.n_episodes)):
+        for episode in trange(self.args.n_episodes):
             s = self.env.reset()
             for time_step in range(self.args.episode_length):
                 r = []
                 with torch.no_grad():
-                    torch_obs = [torch.tensor(s[i], dtype=torch.float32).view(1, -1) for i in range(self.n_agents)]
+                    torch_obs = [torch.tensor(s[i], dtype=torch.float32, device=DEVICE).view(1, -1) for i in
+                                 range(self.n_agents)]
                     u = self.policy.step(torch_obs, epsilon=self.epsilon, noise_rate=self.noise)
                 actions = [action.numpy().flatten() for action in u]
                 s_next, rewards, done, _ = self.env.step(actions)
@@ -64,8 +65,10 @@ class Runner:
                 for i, a in enumerate(self.agents):
                     agent_num = a.type + str(i)
                     returns[i].append(ave_return[i])
-                    data_path = os.path.join(self.save_path, '%s' % a.type, self.policy.agent_algo[i], 'data')
-                    plot_path = os.path.join(self.save_path, '%s' % a.type, self.policy.agent_algo[i], 'plots')
+                    data_path = os.path.join(self.save_path, '%s' % a.type,
+                                             self.policy.agent_algo[i], 'data')
+                    plot_path = os.path.join(self.save_path, '%s' % a.type,
+                                             self.policy.agent_algo[i], 'plots')
                     if not os.path.exists(data_path):
                         os.makedirs(data_path)
                     if not os.path.exists(plot_path):
@@ -79,9 +82,9 @@ class Runner:
                     plt.title('%s training (%s)' % (agent_num, self.args.scenario_name))
                     plt.savefig(plot_path + '/%s_returns.png' % agent_num)
 
+        print('Complete Training')
         self.policy.save_model()
         ave_return, norm_return = self.evaluate(render=False)
-
 
     def evaluate(self, render=False):
         returns = [[] for _ in range(self.n_agents)]
@@ -94,7 +97,8 @@ class Runner:
                 if render:
                     self.env.render()
                 with torch.no_grad():
-                    torch_obs = [torch.tensor(s[i], dtype=torch.float32).view(1, -1) for i in range(self.n_agents)]
+                    torch_obs = [torch.tensor(s[i], dtype=torch.float32, device=DEVICE).view(1, -1) for i in
+                                 range(self.n_agents)]
                     u = self.policy.step(torch_obs, epsilon=0, noise_rate=0)
                 actions = [action.numpy().flatten() for action in u]
                 s_next, r, done, info = self.env.step(actions)
@@ -106,12 +110,13 @@ class Runner:
 
         for i in range(self.args.evaluate_episodes):
             for j in range(self.n_agents):
-                norm_return[j].append((returns[j][i] - min(returns[j])) / (max(returns[j]) - min(returns[j])))
+                norm_return[j].append(
+                        (returns[j][i] - min(returns[j])) / (max(returns[j]) - min(returns[j])))
 
         ave_return = [np.mean(i) for i in returns]
         norm_score = [np.mean(i) for i in norm_return]
         for i, a in enumerate(self.agents):
-            print('{} {}: max = {:.3f}, min = {:.3f}, mean = {:.3f}, mean norm = {:.3f}'.\
-                            format(a.type, i, max(returns[i]), min(returns[i]), ave_return[i], norm_score[i]))
+            print('{} {}: max = {:.3f}, min = {:.3f}, mean = {:.3f}, mean norm = {:.3f}'.
+                  format(a.type, i, max(returns[i]), min(returns[i]), ave_return[i], norm_score[i]))
 
         return ave_return, norm_score

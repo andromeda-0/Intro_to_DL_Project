@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 class MLP(nn.Module):
     def __init__(self, input_dim, output_dim, hidden_dim=64,
@@ -23,6 +24,79 @@ class MLP(nn.Module):
         out = self.out_fn(self.fc3(x))
         return out
 
+class LSTM(nn.Module):
+    def __init__(self, input_dim, output_dim, hidden_dim=64,
+                 constrain_out=False, discrete_action=True):
+        super(LSTM, self).__init__()
+        self.fc1 = nn.Linear(input_dim, hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
+        self.gru = nn.GRUCell(hidden_dim, hidden_dim)
+
+        if constrain_out and not discrete_action:
+            final_fc = nn.Linear(hidden_dim, output_dim)
+            final_fc.weight.data.uniform_(-3e-3, 3e-3)
+            self.fc3 = nn.Sequential(nn.Linear(hidden_dim, hidden_dim),
+                                     nn.ReLU(),
+                                     final_fc)
+            self.out_fn = torch.tanh
+        else:
+            self.fc3 = nn.Linear(hidden_dim, output_dim)
+            self.out_fn = lambda x: x
+
+    def forward(self, x, K=2):
+        """
+        K : number of communication steps
+        """
+        h = self.fc2(F.relu(self.fc1(x)))
+        for k in range(K):
+            c = torch.zeros_like(h)
+            h = self.gru(c,h)
+        out = self.out_fn(self.fc3(h))
+        return out
+    
+class LSTM_COMM(nn.Module):
+    def __init__(self, input_dim, output_dim, hidden_dim=64,
+                 constrain_out=False, discrete_action=True):
+        super(LSTM_COMM, self).__init__()
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
+        self.fc1 = nn.Linear(input_dim, hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
+        self.gru = nn.GRUCell(hidden_dim, hidden_dim)
+
+        if constrain_out and not discrete_action:
+            final_fc = nn.Linear(hidden_dim, output_dim)
+            final_fc.weight.data.uniform_(-3e-3, 3e-3)
+            self.fc3 = nn.Sequential(nn.Linear(hidden_dim, hidden_dim),
+                                     nn.ReLU(),
+                                     final_fc)
+            self.out_fn = torch.tanh
+        else:
+            self.fc3 = nn.Linear(hidden_dim, output_dim)
+            self.out_fn = lambda x: x
+
+    def forward(self, x, agent_ix=0, K=2):
+        """
+        K : number of communication steps
+        """
+        if len(x.shape) == 3: n_agents = x.shape[1]
+        else: n_agents = 1
+        if agent_ix >= n_agents: agent_ix = agent_ix-3 #TODO: adhoc, change to accomodate general case
+
+        h = self.fc2(F.relu(self.fc1(x.view(-1,self.input_dim))))
+        c = torch.zeros_like(h)
+        h = self.gru(c,h)
+        for k in range(1,K):
+            h = h.reshape(-1, n_agents, self.hidden_dim)
+            c = h.reshape(-1, 1, n_agents*self.hidden_dim)
+            c = c.repeat(1, n_agents, 1)
+            mask = (1 - torch.eye(n_agents)).to(DEVICE)
+            c = c * mask.view(-1, 1).repeat(1, self.hidden_dim).view(n_agents, -1).unsqueeze(0)
+            c = c.reshape(-1, n_agents, n_agents, self.hidden_dim).mean(dim=-2)
+            h = self.gru(c.reshape(-1, self.hidden_dim),h.reshape(-1, self.hidden_dim))
+        h = h.view(-1, n_agents, self.hidden_dim)[:, agent_ix]
+        out = self.out_fn(self.fc3(h))
+        return out
 
 class QMixer(nn.Module):
     def __init__(self, state_dim, n_agents, output_dim=1,
