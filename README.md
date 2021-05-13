@@ -7,7 +7,7 @@ This branch contains work related to social influence in this project.
 
 - `Python == 3.9`
 - `PyTorch == 1.8.1+cu111`
-- `OpenAI Gym == 0.10.5`: https://github.com/openai/gym `
+- `OpenAI Gym == 0.10.5`: https://github.com/openai/gym
 - `OpenAI Multi-Particle Environment`: https://github.com/openai/multiagent-particle-envs
 
 Install the packages specified above, then replace the `environment.py` in the installed package with `environment/environment.py` in this branch. The only modification in this script is in the `__init__()` function, for the compatibility with a continous action space.
